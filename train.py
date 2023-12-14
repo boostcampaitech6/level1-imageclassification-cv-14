@@ -52,10 +52,10 @@ def main(config):
     lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
 
     trainer_kwargs = {
-		'model': model,
-		'criterion': criterion,
-		'metrics': metrics, 
-		'optimizer': optimizer,
+        'model': model,
+        'criterion': criterion,
+        'metrics': metrics,
+        'optimizer': optimizer,
         'config': config,
         'device': device,
         'train_loader': train_loader,
