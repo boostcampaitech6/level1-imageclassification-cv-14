@@ -7,10 +7,10 @@
         "args": {}
     },
     "dataset": {
-		"type": "BasicDataset",
-		"args": {
-			"val_ratio": 0.2
-		}
+        "type": "BasicDataset",
+        "args": {
+            "val_ratio": 0.2
+        }
     },
     "train_loader": {
         "type": "BasicDataLoader",
