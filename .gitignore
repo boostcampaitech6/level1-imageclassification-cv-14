@@ -112,7 +112,7 @@ datasets/
 __MACOSX/
 
 # config
-config.json
+# config.json
 logger_config.json
 
 # for mac
