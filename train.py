@@ -2,14 +2,15 @@ import argparse
 import collections
 import torch
 import numpy as np
-import data_loader.data_loaders as module_data
+import torch.utils.data as torch_utils
+import data_loader as module_data
 import model.loss as module_loss
 import model.metric as module_metric
-import model.model as module_arch
+import model as module_arch
+import trainer as module_trainer
 from parse_config import ConfigParser
-from trainer import Trainer
 from utils import prepare_device
-
+ 
 
 # fix random seeds for reproducibility
 SEED = 123
@@ -22,8 +23,14 @@ def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    data_loader = config.init_obj('data_loader', module_data)
-    valid_data_loader = data_loader.split_validation()
+    dataset = config.init_obj('dataset', module_data)
+    train_set, valid_set = dataset.split_dataset()
+
+    train_sampler = torch_utils.RandomSampler(train_set)
+    valid_sampler = torch_utils.RandomSampler(valid_set)
+
+    train_loader = config.init_obj('train_loader', module_data, train_set, sampler=train_sampler)
+    valid_loader = config.init_obj('valid_loader', module_data, valid_set, sampler=valid_sampler)
 
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch)
@@ -44,12 +51,18 @@ def main(config):
     optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
     lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
 
-    trainer = Trainer(model, criterion, metrics, optimizer,
-                      config=config,
-                      device=device,
-                      data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler)
+    trainer_kwargs = {
+		'model': model,
+		'criterion': criterion,
+		'metrics': metrics, 
+		'optimizer': optimizer,
+        'config': config,
+        'device': device,
+        'train_loader': train_loader,
+        'valid_loader': valid_loader,
+        'lr_scheduler': lr_scheduler
+    }
+    trainer = config.init_obj('trainer', module_trainer, **trainer_kwargs)
 
     trainer.train()
 
