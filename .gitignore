@@ -110,3 +110,10 @@ datasets/
 .vscode/
 .idea/
 __MACOSX/
+
+# config
+# config.json
+logger_config.json
+
+# for mac
+.DS_Store
