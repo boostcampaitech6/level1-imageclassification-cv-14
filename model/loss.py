@@ -54,5 +54,5 @@ def label_smoothing_loss(input, target):
     model = LabelSmoothingLoss()
     return model(input, target)
 
-def corss(input, target):
+def cross_entropy_loss(input, target):
     return F.cross_entropy(input, target)
