@@ -1,6 +1,8 @@
 {
-    "name": "Image Classification",
+    "name": "Image_Classification",
     "n_gpu": 1,
+    "input_file": "./data/eval/info.csv",
+    "output_file": "./data/submission.csv",
 
     "arch": {
         "type": "CNN",
@@ -17,15 +19,15 @@
         "type": "TestDataset",
         "args": {
             "img_paths": "./data/eval/images",
-            "reszie": 224
+            "resize": 224
         }
     },
     "train_loader": {
         "type": "BasicDataLoader",
         "args":{
-            "batch_size": 64,
+            "batch_size": 128,
             "shuffle": false,
-            "num_workers": 0
+            "num_workers": 4
         }
     },
     "valid_loader": {
@@ -33,7 +35,7 @@
         "args":{
             "batch_size": 64,
             "shuffle": false,
-            "num_workers": 0
+            "num_workers": 4
         }
     },
     "optimizer": {
@@ -59,7 +61,7 @@
         "type": "BasicTrainer",
         "args": {},
 
-        "epochs": 1,
+        "epochs": 2,
 
         "save_dir": "saved/",
         "save_period": 1,
