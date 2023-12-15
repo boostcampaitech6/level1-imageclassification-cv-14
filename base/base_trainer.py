@@ -73,7 +73,7 @@ class BaseTrainer:
             entity=self.entity
         )
         wandb.config.batch_size = self.config["train_loader"]["args"]["batch_size"]
-        wandb.config.epoch = self.config["trainer"]["epochs"]
+        wandb.config.epoch = self.epochs
         # wandb.config.k_fold <<< need to develop
         wandb.watch(self.model)
 
