@@ -59,9 +59,9 @@ class BaseDataset(Dataset):
                 self.gender_labels.append(gender_label)
                 self.age_labels.append(age_label)
 
-    def load_image(self, index):
-        image = self.read_image(index)
-        return image
+    def load_image_path(self, index):
+        image_path = self.image_paths[index]
+        return image_path
     
     def load_multi_class_label(self, index):
         mask_label = self.get_mask_label(index)
@@ -82,10 +82,6 @@ class BaseDataset(Dataset):
 
     def get_age_label(self, index) -> AgeLabels:
         return self.age_labels[index]
-
-    def read_image(self, index):
-        image_path = self.image_paths[index]
-        return Image.open(image_path)
 
     def calc_statistics(self):
         has_statistics = self.mean is not None and self.std is not None

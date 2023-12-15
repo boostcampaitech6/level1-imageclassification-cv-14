@@ -117,3 +117,6 @@ logger_config.json
 
 # for mac
 .DS_Store
+
+# wandb
+wandb/
