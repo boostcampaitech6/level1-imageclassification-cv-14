@@ -1,4 +1,5 @@
 import torch
+import wandb
 from abc import abstractmethod
 from numpy import inf
 from logger import TensorboardWriter
@@ -8,7 +9,8 @@ class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model, criterion, metrics, optimizer, config):
+    def __init__(self, model, criterion, metrics, optimizer, config,
+                 exp_name, exp_num, project_name, entity,):
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
@@ -43,6 +45,13 @@ class BaseTrainer:
 
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
+        
+        # wandb
+        self.wandb_tag = [self.config["arch"]["type"]]
+        self.exp_name = exp_name
+        self.exp_num = exp_num
+        self.project_name = project_name
+        self.entity = entity
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -57,6 +66,17 @@ class BaseTrainer:
         """
         Full training logic
         """
+        # wandb init
+        wandb.init(
+            name=f'{self.exp_name}_{self.exp_num}',
+            project=self.project_name,
+            entity=self.entity
+        )
+        wandb.config.batch_size = self.config["train_loader"]["args"]["batch_size"]
+        wandb.config.epoch = self.epochs
+        # wandb.config.k_fold <<< need to develop
+        wandb.watch(self.model)
+
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
@@ -64,6 +84,9 @@ class BaseTrainer:
             # save logged informations into log dict
             log = {'epoch': epoch}
             log.update(result)
+
+            # wandb logging
+            wandb.log(result, step=epoch)
 
             # print logged informations to the screen
             for key, value in log.items():
