@@ -3,11 +3,6 @@ from torchmetrics.classification import MulticlassF1Score
 from focal_loss.focal_loss import FocalLoss
 import torch
 
-# pip install focal_loss_torch
-# pip install torcheval
-# pip install torchmetrics
-
-
 class FocalLoss(torch.nn.Module):
     def __init__(self, alpha=1, gamma=2, logits=False, reduce=True):
         super(FocalLoss, self).__init__()
