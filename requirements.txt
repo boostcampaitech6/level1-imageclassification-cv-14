@@ -5,4 +5,4 @@ tqdm
 tensorboard>=1.14
 wandb
 albumentations
-opencv-python
+opencv-pythonwandb
