@@ -3,13 +3,21 @@
     "n_gpu": 1,
 
     "arch": {
-        "type": "BasicModel",
+        "type": "CNN",
         "args": {}
     },
     "dataset": {
-        "type": "BasicDataset",
+        "type": "TrainDataset",
         "args": {
+            "data_dir": "./data/train/images",
             "val_ratio": 0.2
+        }
+    },
+    "test_dataset": {
+        "type": "TestDataset",
+        "args": {
+            "img_paths": "./data/eval/images",
+            "reszie": 224
         }
     },
     "train_loader": {
@@ -51,7 +59,7 @@
         "type": "BasicTrainer",
         "args": {},
 
-        "epochs": 10,
+        "epochs": 1,
 
         "save_dir": "saved/",
         "save_period": 1,
