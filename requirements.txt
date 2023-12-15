@@ -6,3 +6,6 @@ tensorboard>=1.14
 wandb
 albumentations
 opencv-python
+torchmetrics
+
+
