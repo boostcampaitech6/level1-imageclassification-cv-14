@@ -47,7 +47,7 @@ class BaseTrainer:
             self._resume_checkpoint(config.resume)
         
         # wandb
-        self.wandb_tag = [self.config._config["arch"]["type"]]
+        self.wandb_tag = [self.config["arch"]["type"]]
         self.exp_name = exp_name
         self.exp_num = exp_num
         self.project_name = project_name
