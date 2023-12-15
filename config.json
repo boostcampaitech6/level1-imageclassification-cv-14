@@ -44,7 +44,7 @@
             "amsgrad": true
         }
     },
-    "loss": "corss_entropy",
+    "loss": "cross",
     "metrics": [
         "accuracy", "top_k_acc"
     ],

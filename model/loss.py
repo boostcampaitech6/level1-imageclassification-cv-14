@@ -41,25 +41,18 @@ class LabelSmoothingLoss(torch.nn.Module):
 def nll_loss(output, target):
     return F.nll_loss(output, target)
 
-def f1_score_loss(input, target):
+def f1_loss(input, target):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     f1 = MulticlassF1Score(num_classes=18, average=None).to(device)
     return f1(input, target).requires_grad_(True).mean()
 
 def focal_loss(input, target):
-    # criterion = FocalLoss(gamma=0.7)
-    # batch_size = 64
-    # n_class = 18
-    # m = F.softmax(dim=-1)
-    # logits = torch.randn(batch_size, n_class)
-    # target = torch.randn(0, n_class, size=(batch_size,))
-    # return criterion(m(logits), target)
     focal = FocalLoss()
     return focal(input, target)
 
-def labelSmoothingLoss(input, target):
+def label_smoothing_loss(input, target):
     model = LabelSmoothingLoss()
     return model(input, target)
 
-def corss_entropy(input, target):
+def corss(input, target):
     return F.cross_entropy(input, target)
