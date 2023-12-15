@@ -19,7 +19,11 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
-def main(config):
+def main(config,
+         exp_name,
+         exp_num,
+         project_name,
+         entity,):
     logger = config.get_logger('train')
 
     # setup data_loader instances
@@ -58,6 +62,10 @@ def main(config):
         'optimizer': optimizer,
         'config': config,
         'device': device,
+        'exp_name': exp_name,
+        'exp_num': exp_num,
+        'project_name': project_name,
+        'entity': entity,
         'train_loader': train_loader,
         'valid_loader': valid_loader,
         'lr_scheduler': lr_scheduler
@@ -75,6 +83,14 @@ if __name__ == '__main__':
                       help='path to latest checkpoint (default: None)')
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
+    args.add_argument('-e', '--exp_name', default='cnn_test', type=str,
+                      help='name of experiment. ex) cnn_test')
+    args.add_argument('-n', '--exp_num', default=0, type=int,
+                      help='experience number')
+    args.add_argument('--project_name', default='Mask Image Classification', type=str,
+                      help='our project name (default : Mask Image Classification)')
+    args.add_argument('--entity', default='cv-14', type=str,
+                      help='our team name')
 
     # custom cli options to modify configuration from default values given in json file.
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
@@ -83,4 +99,12 @@ if __name__ == '__main__':
         CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
     ]
     config = ConfigParser.from_args(args, options)
-    main(config)
+    args = args.parse_args()
+    main_kwargs = {
+        'config': config,
+        'exp_name': args.exp_name,
+        'exp_num': args.exp_num,
+        'project_name': args.project_name,
+        'entity': args.entity,
+    }
+    main(**main_kwargs)
