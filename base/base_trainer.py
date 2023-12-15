@@ -74,7 +74,11 @@ class BaseTrainer:
         )
         wandb.config.batch_size = self.config["train_loader"]["args"]["batch_size"]
         wandb.config.epoch = self.epochs
-        # wandb.config.k_fold <<< need to develop
+        wandb.config.loss = self.config["loss"]
+        wandb.config.optimizer = self.config["optimizer"]["type"]
+        wandb.config.lr_scheduler = {"type": self.config["lr_scheduler"]["type"],
+                                     "step_size": self.config["lr_scheduler"]["args"]["step_size"],
+                                     "gamma": self.config["lr_scheduler"]["args"]["gamma"],}
         wandb.watch(self.model)
 
         not_improved_count = 0
