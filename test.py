@@ -36,9 +36,9 @@ def main(config):
 
             for line in tqdm(input_file.readlines()):
                 image = Image.open(os.path.join(config['test_dataset']['args']['img_paths'],line.split(',')[0]))
+                
                 transform = transforms.Compose([transforms.Resize(config['test_dataset']['args']['resize']),
                                                 transforms.ToTensor(),
-                                                transforms.CenterCrop(150),
                                                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]) 
                 image = transform(image)
                 image = image.to(device)
