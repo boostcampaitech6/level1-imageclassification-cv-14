@@ -8,7 +8,11 @@ albumentations
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 opencv-pythonwandb
+=======
+opencv-python
+>>>>>>> 0afce54 (feat: albumentations 사용하여 transform 구현 (#26))
 =======
 opencv-python
 >>>>>>> 0afce54 (feat: albumentations 사용하여 transform 구현 (#26))
