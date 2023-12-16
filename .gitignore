@@ -113,6 +113,7 @@ __MACOSX/
 
 # config
 # config.json
+testconfig.json
 logger_config.json
 
 # for mac

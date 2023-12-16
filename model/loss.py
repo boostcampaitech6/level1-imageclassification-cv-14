@@ -1,6 +1,5 @@
 import torch.nn.functional as F
 from torchmetrics.classification import MulticlassF1Score
-from focal_loss.focal_loss import FocalLoss
 import torch
 
 class FocalLoss(torch.nn.Module):

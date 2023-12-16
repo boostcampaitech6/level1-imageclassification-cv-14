@@ -19,11 +19,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
-def main(config,
-         exp_name,
-         exp_num,
-         project_name,
-         entity,):
+def main(config, exp_name, exp_num, project_name, entity,):
     logger = config.get_logger('train')
 
     # setup data_loader instances
@@ -87,7 +83,7 @@ if __name__ == '__main__':
                       help='name of experiment. ex) cnn_test')
     args.add_argument('-n', '--exp_num', default=0, type=int,
                       help='experience number')
-    args.add_argument('--project_name', default='Mask Image Classification', type=str,
+    args.add_argument('--project_name', default="Image Classification", type=str,
                       help='our project name (default : Mask Image Classification)')
     args.add_argument('--entity', default='cv-14', type=str,
                       help='our team name')
