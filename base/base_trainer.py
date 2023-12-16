@@ -2,26 +2,24 @@ import torch
 import wandb
 from abc import abstractmethod
 from numpy import inf
-from logger import TensorboardWriter
 
 
 class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model, criterion, metrics, optimizer, config,
-                 exp_name, exp_num, project_name, entity,):
+    def __init__(self, model, criterion, metrics, optimizer, config, fold):
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
         self.optimizer = optimizer
         self.config = config
+        self.fold = fold
 
-        cfg_trainer = config['trainer']
-        self.logger = config.get_logger('trainer', cfg_trainer['verbosity'])
-        self.epochs = cfg_trainer['epochs']
-        self.save_period = cfg_trainer['save_period']
-        self.monitor = cfg_trainer.get('monitor', 'off')
+        self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
+        self.epochs = config['trainer']['epochs']
+        self.save_period = config['trainer']['save_period']
+        self.monitor = config['trainer'].get('monitor', 'off')
 
         # configuration to monitor model performance and save best
         if self.monitor == 'off':
@@ -32,26 +30,22 @@ class BaseTrainer:
             assert self.mnt_mode in ['min', 'max']
 
             self.mnt_best = inf if self.mnt_mode == 'min' else -inf
-            self.early_stop = cfg_trainer.get('early_stop', inf)
+            self.early_stop = config['trainer'].get('early_stop', inf)
             if self.early_stop <= 0:
                 self.early_stop = inf
 
-        self.start_epoch = 1
-
         self.checkpoint_dir = config.save_dir
-
-        # setup visualization writer instance                
-        self.writer = TensorboardWriter(config.log_dir, self.logger, cfg_trainer['tensorboard'])
-
         if config.resume is not None:
             self._resume_checkpoint(config.resume)
         
+        self.start_epoch = 1
+
         # wandb
-        self.wandb_tag = [self.config["arch"]["type"]]
-        self.exp_name = exp_name
-        self.exp_num = exp_num
-        self.project_name = project_name
-        self.entity = entity
+        self.wandb_tag = [config['arch']['type']]
+        self.exp_name = config['wandb']['exp_name']
+        self.exp_num = config['wandb']['exp_num']
+        self.project_name = config['wandb']['project_name']
+        self.entity = config['wandb']['entity']
 
     @abstractmethod
     def _train_epoch(self, epoch):
@@ -68,25 +62,28 @@ class BaseTrainer:
         """
         # wandb init
         wandb.init(
-            name=f'{self.exp_name}_{self.exp_num}',
+            name=f'{self.exp_name}_{self.exp_num}_fold{self.fold}',
             project=self.project_name,
             entity=self.entity
         )
-        wandb.config.batch_size = self.config["train_loader"]["args"]["batch_size"]
-        wandb.config.epoch = self.epochs
-        wandb.config.loss = self.config["loss"]
-        wandb.config.optimizer = self.config["optimizer"]["type"]
-        wandb.config.lr_scheduler = {"type": self.config["lr_scheduler"]["type"],
-                                     "step_size": self.config["lr_scheduler"]["args"]["step_size"],
-                                     "gamma": self.config["lr_scheduler"]["args"]["gamma"],}
+        wandb.config.batch_size = self.config['train_loader']['args']['batch_size']
+        wandb.config.epoch = self.config['trainer']['epochs']
+        wandb.config.loss = self.config['loss']
+        wandb.config.optimizer = self.config['optimizer']['type']
+        wandb.config.lr_scheduler = {
+            'type': self.config['lr_scheduler']['type'],
+            'step_size': self.config['lr_scheduler']['args']['step_size'],
+            'gamma': self.config['lr_scheduler']['args']['gamma']
+        }
         wandb.watch(self.model)
 
         not_improved_count = 0
+        best_result = {}
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 
             # save logged informations into log dict
-            log = {'epoch': epoch}
+            log = {'fold': self.fold, 'epoch': epoch}
             log.update(result)
 
             # wandb logging
@@ -97,7 +94,6 @@ class BaseTrainer:
                 self.logger.info('    {:15s}: {}'.format(str(key), value))
 
             # evaluate model performance according to configured metric, save best checkpoint as model_best
-            best = False
             if self.mnt_mode != 'off':
                 try:
                     # check whether model performance improved or not, according to specified metric(mnt_metric)
@@ -111,8 +107,9 @@ class BaseTrainer:
 
                 if improved:
                     self.mnt_best = log[self.mnt_metric]
+                    self._save_best_checkpoint(self.fold, epoch, result)
+                    best_result = log
                     not_improved_count = 0
-                    best = True
                 else:
                     not_improved_count += 1
 
@@ -120,17 +117,15 @@ class BaseTrainer:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. "
                                      "Training stops.".format(self.early_stop))
                     break
+                
+            self.logger.info("-" * 60)
 
-            if epoch % self.save_period == 0:
-                self._save_checkpoint(epoch, save_best=best)
+        wandb.finish()
+        return best_result
 
-    def _save_checkpoint(self, epoch, save_best=False):
+    def _save_best_checkpoint(self, fold, epoch, result):
         """
-        Saving checkpoints
-
-        :param epoch: current epoch number
-        :param log: logging information of the epoch
-        :param save_best: if True, rename the saved checkpoint to 'model_best.pth'
+        Saving best checkpoints
         """
         arch = type(self.model).__name__
         state = {
@@ -139,15 +134,13 @@ class BaseTrainer:
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
+            'log': result,
             'config': self.config
         }
-        filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
-        torch.save(state, filename)
-        self.logger.info("Saving checkpoint: {} ...".format(filename))
-        if save_best:
-            best_path = str(self.checkpoint_dir / 'model_best.pth')
-            torch.save(state, best_path)
-            self.logger.info("Saving current best: model_best.pth ...")
+
+        best_path = str(self.checkpoint_dir / 'model_best_fold{}.pth'.format(fold))
+        torch.save(state, best_path)
+        self.logger.info('Saving current best: model_best_fold{}.pth ...'.format(fold))
 
     def _resume_checkpoint(self, resume_path):
         """

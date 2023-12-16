@@ -4,8 +4,8 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 class TrainDataset(BaseDataset):
-    def __init__(self, data_dir, val_ratio=0.2):
-        super().__init__(data_dir, val_ratio)
+    def __init__(self, data_dir):
+        super().__init__(data_dir)
 
         self.transform = A.Compose([   
             A.Normalize(self.mean, self.std),

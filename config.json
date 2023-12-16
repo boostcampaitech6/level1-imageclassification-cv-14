@@ -11,8 +11,7 @@
     "dataset": {
         "type": "TrainDataset",
         "args": {
-            "data_dir": "./data/train/images",
-            "val_ratio": 0.2
+            "data_dir": "./data/train/images"
         }
     },
     "test_dataset": {
@@ -25,7 +24,7 @@
     "train_loader": {
         "type": "BasicDataLoader",
         "args":{
-            "batch_size": 128,
+            "batch_size": 64,
             "shuffle": false,
             "num_workers": 4
         }
@@ -46,7 +45,7 @@
             "amsgrad": true
         }
     },
-    "loss": "cross_entropy_loss",
+    "loss": "f1_loss",
     "metrics": [
         "accuracy", "top_k_acc", "f1_score"
     ],
@@ -58,18 +57,23 @@
         }
     },
     "trainer": {
-        "type": "BasicTrainer",
+        "type": "Trainer",
         "args": {},
 
-        "epochs": 2,
+        "epochs": 20,
 
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,
         
         "monitor": "min val_loss",
-        "early_stop": 10,
-
-        "tensorboard": true
+        "early_stop": 10
+    },
+    "k_splits": 5,
+    "wandb": {
+        "exp_name": "exp",
+        "exp_num": 0,
+        "project_name": "Image_Classification",
+        "entity": "cv-14"
     }
 }
