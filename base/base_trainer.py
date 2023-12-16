@@ -8,8 +8,7 @@ class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model, criterion, metrics, optimizer, config, fold,
-                 exp_name, exp_num, project_name, entity):
+    def __init__(self, model, criterion, metrics, optimizer, config, fold):
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
@@ -42,11 +41,11 @@ class BaseTrainer:
         self.start_epoch = 1
 
         # wandb
-        self.wandb_tag = [self.config["arch"]["type"]]
-        self.exp_name = exp_name
-        self.exp_num = exp_num
-        self.project_name = project_name
-        self.entity = entity
+        self.wandb_tag = [config['arch']['type']]
+        self.exp_name = config['wandb']['exp_name']
+        self.exp_num = config['wandb']['exp_num']
+        self.project_name = config['wandb']['project_name']
+        self.entity = config['wandb']['entity']
 
     @abstractmethod
     def _train_epoch(self, epoch):

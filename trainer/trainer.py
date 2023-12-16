@@ -9,10 +9,8 @@ class Trainer(BaseTrainer):
     Trainer class
     """
     def __init__(self, model, criterion, metrics, optimizer, config, fold,
-                 exp_name, exp_num, project_name, entity,
                  device, train_loader, valid_loader=None, lr_scheduler=None):
-        super().__init__(model, criterion, metrics, optimizer, config, fold,
-                         exp_name, exp_num, project_name, entity,)
+        super().__init__(model, criterion, metrics, optimizer, config, fold)
         self.config = config
         self.device = device
         self.train_loader = train_loader

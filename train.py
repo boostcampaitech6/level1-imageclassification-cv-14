@@ -21,7 +21,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
-def main(config, exp_name, exp_num, project_name, entity,):
+def main(config):
     logger = config.get_logger('train')
 
     dataset = config.init_obj('dataset', module_data)
@@ -68,10 +68,6 @@ def main(config, exp_name, exp_num, project_name, entity,):
             'optimizer': optimizer,
             'config': config,
             'fold': fold + 1,
-            'exp_name': exp_name,
-            'exp_num': exp_num,
-            'project_name': project_name,
-            'entity': entity,
             'device': device,
             'train_loader': train_loader,
             'valid_loader': valid_loader,
@@ -90,28 +86,16 @@ if __name__ == '__main__':
                       help='path to latest checkpoint (default: None)')
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
-    args.add_argument('-e', '--exp_name', default='exp', type=str,
-                      help='name of experiment. ex) cnn_test')
-    args.add_argument('-n', '--exp_num', default=0, type=int,
-                      help='experience number')
-    args.add_argument('--project_name', default='Image Classification', type=str,
-                      help='our project name (default: Image Classification)')
-    args.add_argument('--entity', default='cv-14', type=str,
-                      help='our team name')
 
     # custom cli options to modify configuration from default values given in json file.
     CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
     options = [
         CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
+        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size'),
+        CustomArgs(['-e', '--exp_name'], type=str, target='wandb;exp_name'),
+        CustomArgs(['-n', '--exp_num'], type=int, target='wandb;exp_num'),
+        CustomArgs(['--project_name'], type=str, target='wandb;project_name'),
+        CustomArgs(['--entity'], type=str, target='wandb;entity')
     ]
     config = ConfigParser.from_args(args, options)
-    args = args.parse_args()
-    main_kwargs = {
-        'config': config,
-        'exp_name': args.exp_name,
-        'exp_num': args.exp_num,
-        'project_name': args.project_name,
-        'entity': args.entity,
-    }
-    main(**main_kwargs)
+    main(config)

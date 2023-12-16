@@ -69,5 +69,11 @@
         "monitor": "min val_loss",
         "early_stop": 10
     },
-    "k_splits": 5
+    "k_splits": 5,
+    "wandb": {
+        "exp_name": "exp",
+        "exp_num": 0,
+        "project_name": "Image Classification",
+        "entity": "cv-14"
+    }
 }
