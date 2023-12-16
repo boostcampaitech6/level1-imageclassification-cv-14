@@ -95,7 +95,7 @@ if __name__ == '__main__':
     args.add_argument('-n', '--exp_num', default=0, type=int,
                       help='experience number')
     args.add_argument('--project_name', default='Image Classification', type=str,
-                      help='our project name (default : Mask Image Classification)')
+                      help='our project name (default: Image Classification)')
     args.add_argument('--entity', default='cv-14', type=str,
                       help='our team name')
 
