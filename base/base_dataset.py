@@ -1,8 +1,7 @@
 import os
-from typing import Tuple
 import numpy as np
 from PIL import Image
-from torch.utils.data import Dataset, Subset, random_split
+from torch.utils.data import Dataset
 from utils import MaskLabels, GenderLabels, AgeLabels, encode_multi_class
 
 
@@ -24,11 +23,8 @@ class BaseDataset(Dataset):
     gender_labels = []
     age_labels = []
 
-    def __init__(
-        self, data_dir, val_ratio=0.2, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)
-    ):
+    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)):
         self.data_dir = data_dir
-        self.val_ratio = val_ratio
         self.mean = mean
         self.std = std
 
@@ -98,9 +94,3 @@ class BaseDataset(Dataset):
 
             self.mean = np.mean(sums, axis=0) / 255
             self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
-		
-    def split_dataset(self) -> Tuple[Subset, Subset]:
-        n_val = int(len(self) * self.val_ratio)
-        n_train = len(self) - n_val
-        train_set, val_set = random_split(self, [n_train, n_val])
-        return train_set, val_set
