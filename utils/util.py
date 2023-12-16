@@ -2,7 +2,6 @@ import json
 import torch
 import pandas as pd
 from pathlib import Path
-from itertools import repeat
 from collections import OrderedDict
 
 
@@ -20,11 +19,6 @@ def write_json(content, fname):
     fname = Path(fname)
     with fname.open('wt') as handle:
         json.dump(content, handle, indent=4, sort_keys=False)
-
-def inf_loop(data_loader):
-    ''' wrapper function for endless data loader. '''
-    for loader in repeat(data_loader):
-        yield from loader
 
 def prepare_device(n_gpu_use):
     """
