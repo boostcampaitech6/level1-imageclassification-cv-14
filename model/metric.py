@@ -1,5 +1,6 @@
 import torch
-from sklearn.metrics import f1_score
+# from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score as calcualte_f1_score
 
 
 def accuracy(output, target):
@@ -21,9 +22,9 @@ def top_k_acc(output, target, k=3):
     return correct / len(target)
 
 
-def calculate_f1_score(output, target):
+def f1_score(output, target):
     with torch.no_grad():
         pred = torch.argmax(output, dim=1)
         assert pred.shape[0] == len(target) 
-        a=f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')
-    return f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')
+        a=calcualte_f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')
+    return calcualte_f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')
