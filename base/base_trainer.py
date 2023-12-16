@@ -95,7 +95,6 @@ class BaseTrainer:
                 self.logger.info('    {:15s}: {}'.format(str(key), value))
 
             # evaluate model performance according to configured metric, save best checkpoint as model_best
-            best = False
             if self.mnt_mode != 'off':
                 try:
                     # check whether model performance improved or not, according to specified metric(mnt_metric)
@@ -109,8 +108,9 @@ class BaseTrainer:
 
                 if improved:
                     self.mnt_best = log[self.mnt_metric]
+                    self._save_best_checkpoint(self.fold, epoch, result)
+                    best_result = log
                     not_improved_count = 0
-                    best = True
                 else:
                     not_improved_count += 1
 
@@ -118,16 +118,13 @@ class BaseTrainer:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. "
                                      "Training stops.".format(self.early_stop))
                     break
-            
-            if best:
-                best_result = log
-                self._save_best_checkpoint(self.fold, epoch)
+                
             self.logger.info("-" * 60)
 
         wandb.finish()
         return best_result
 
-    def _save_best_checkpoint(self, fold, epoch):
+    def _save_best_checkpoint(self, fold, epoch, result):
         """
         Saving best checkpoints
         """
@@ -138,6 +135,7 @@ class BaseTrainer:
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
+            'log': result,
             'config': self.config
         }
 
