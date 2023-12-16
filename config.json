@@ -45,7 +45,7 @@
             "amsgrad": true
         }
     },
-    "loss": "cross_entropy_loss",
+    "loss": "f1_loss",
     "metrics": [
         "accuracy", "top_k_acc", "f1_score"
     ],
@@ -60,7 +60,7 @@
         "type": "Trainer",
         "args": {},
 
-        "epochs": 2,
+        "epochs": 20,
 
         "save_dir": "saved/",
         "save_period": 1,
@@ -73,7 +73,7 @@
     "wandb": {
         "exp_name": "exp",
         "exp_num": 0,
-        "project_name": "Image Classification",
+        "project_name": "Image_Classification",
         "entity": "cv-14"
     }
 }
