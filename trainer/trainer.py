@@ -21,8 +21,8 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.fold = fold
 
-        self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics], writer=None)
-        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics], writer=None)
+        self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
+        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
 
     def _train_epoch(self, epoch):
         """
