@@ -11,8 +11,7 @@
     "dataset": {
         "type": "TrainDataset",
         "args": {
-            "data_dir": "./data/train/images",
-            "val_ratio": 0.2
+            "data_dir": "./data/train/images"
         }
     },
     "test_dataset": {
@@ -25,7 +24,7 @@
     "train_loader": {
         "type": "BasicDataLoader",
         "args":{
-            "batch_size": 128,
+            "batch_size": 64,
             "shuffle": false,
             "num_workers": 4
         }
@@ -58,7 +57,7 @@
         }
     },
     "trainer": {
-        "type": "BasicTrainer",
+        "type": "Trainer",
         "args": {},
 
         "epochs": 2,
@@ -71,5 +70,6 @@
         "early_stop": 10,
 
         "tensorboard": true
-    }
+    },
+    "k_splits": 5
 }
