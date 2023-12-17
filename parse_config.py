@@ -3,50 +3,12 @@ import logging
 from pathlib import Path
 from functools import reduce, partial
 from operator import getitem
-from datetime import datetime
 from logger import setup_logging
 from utils import read_json, write_json
 
-
-class ConfigParser:
-    def __init__(self, config, resume=None, modification=None, run_id=None):
-        """
-        class to parse configuration json file. Handles hyperparameters for training, initializations of modules, checkpoint saving
-        and logging module.
-        :param config: Dict containing configurations, hyperparameters for training. contents of `config.json` file for example.
-        :param resume: String, path to the checkpoint being loaded.
-        :param modification: Dict keychain:value, specifying position values to be replaced from config dict.
-        :param run_id: Unique Identifier for training processes. Used to save checkpoints and training log. Timestamp is being used as default
-        """
-        # load config file and apply modification
-        self._config = _update_config(config, modification)
-        self.resume = resume
-
-        # set save_dir where trained model and log will be saved.
-        save_dir = Path(self.config['trainer']['save_dir'])
-
-        project_name = self.config['wandb']['project_name']
-        exp_name = self.config['wandb']['exp_name']
-        exp_num = str(self.config['wandb']['exp_num'])
-
-        self._save_dir = save_dir / 'models' / project_name / exp_name / exp_num
-        self._log_dir = save_dir / 'log' / project_name / exp_name / exp_num
-
-        # make directory for saving checkpoints and log.
-        exist_ok = False
-        self.save_dir.mkdir(parents=True, exist_ok=exist_ok)
-        self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
-
-        # save updated config file to the checkpoint dir
-        write_json(self.config, self.save_dir / 'config.json')
-
-        # configure logging module
-        setup_logging(self.log_dir)
-        self.log_levels = {
-            0: logging.WARNING,
-            1: logging.INFO,
-            2: logging.DEBUG
-        }
+class BaseConfigParser:
+    def __init__(self):
+        pass
 
     @classmethod
     def from_args(cls, args, options=''):
@@ -71,10 +33,8 @@ class ConfigParser:
         
         config = read_json(cfg_fname)
         if args.config and resume:
-            # update new config for fine-tuning
             config.update(read_json(args.config))
 
-        # parse custom cli options into dictionary
         modification = {opt.target : getattr(args, _get_opt_name(opt.flags)) for opt in options}
         return cls(config, resume, modification)
 
@@ -119,7 +79,6 @@ class ConfigParser:
         logger.setLevel(self.log_levels[verbosity])
         return logger
 
-    # setting read-only attributes
     @property
     def config(self):
         return self._config
@@ -131,6 +90,42 @@ class ConfigParser:
     @property
     def log_dir(self):
         return self._log_dir
+    
+class TrainConfigParser(BaseConfigParser):
+    def __init__(self, config, resume=None, modification=None):
+        super().__init__()
+
+        self._config = _update_config(config, modification)
+        self.resume = resume
+
+        save_dir = Path(self.config['trainer']['save_dir'])
+
+        project_name = self.config['wandb']['project_name']
+        exp_name = self.config['wandb']['exp_name']
+        exp_num = str(self.config['wandb']['exp_num'])
+
+        self._save_dir = save_dir / 'models' / project_name / exp_name / exp_num
+        self._log_dir = save_dir / 'log' / project_name / exp_name / exp_num
+
+        exist_ok = False
+        self.save_dir.mkdir(parents=True, exist_ok=exist_ok)
+        self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
+
+        write_json(self.config, self.save_dir / 'config.json')
+
+        setup_logging(self.log_dir)
+        self.log_levels = {
+            0: logging.WARNING,
+            1: logging.INFO,
+            2: logging.DEBUG
+        }
+
+class TestConfigParser(BaseConfigParser):
+    def __init__(self, config, resume=None, modification=None):
+        super().__init__()
+
+        self._config = _update_config(config, modification)
+        self.resume = resume
 
 # helper functions to update config dict with custom cli options
 def _update_config(config, modification):
