@@ -109,9 +109,9 @@ def main(suffix, data_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-n', '--suffix', default='aug', type=str,
+    args.add_argument('-n', '--suffix', default='_aug', type=str,
                       help='add folder name to aug ver data folder')
-    args.add_argument('-d', '--data_dir', default="/data/ephemeral/home/level1-imageclassification-cv-14/data/train/debug_images", type=str,
+    args.add_argument('-d', '--data_dir', default="./data/train/images", type=str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()

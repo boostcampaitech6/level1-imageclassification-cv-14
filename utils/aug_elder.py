@@ -61,8 +61,8 @@ class AugElder():
         cv2.imwrite(dest_img_path, img)
 
     def multiple_process(self,src_list, dest_list, n_funcs):
-        with ProcessPoolExecutor(max_workers=self.n_cpu) as excutor:
-            excutor.map(self.single_process, src_list, dest_list, n_funcs)
+        with ProcessPoolExecutor(max_workers=self.n_cpu) as executor:
+            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total=len(src_list)))
 
     def aug_data(self):
         process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
@@ -148,7 +148,7 @@ def main(data_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-d', '--data_dir', default="/data/ephemeral/home/level1-imageclassification-cv-14/data/train/debug_imagesaug", type=str,
+    args.add_argument('-d', '--data_dir', default=None, type=str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()
