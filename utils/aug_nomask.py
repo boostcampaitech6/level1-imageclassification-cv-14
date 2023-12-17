@@ -72,7 +72,8 @@ class AugNoMask():
             process = [['']] if category == 'mask' else process_types
             for funcs in process:
                 suffix = ''.join(funcs)
-                mod_dest_paths = [p+f'_{suffix}.jpg' for p in dest_paths]
+                suffix = '_'+suffix if suffix else suffix
+                mod_dest_paths = [p+f'{suffix}.jpg' for p in dest_paths]
                 self.multiple_process(src_paths, mod_dest_paths, [funcs for _ in range(len(mod_dest_paths))])
 
     def setup(self):
