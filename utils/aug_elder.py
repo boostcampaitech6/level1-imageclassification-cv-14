@@ -116,7 +116,7 @@ class AugElder():
         self.dest_files_paths.append(dest_files_paths)
     
     def aug_elder_data(self):
-        process_types = [['blur'], ['flip'], ['jitter'], ['blur', 'jitter'], ['flip', 'jitter']]
+        process_types = [['blur','flip','jitter'], ['flip','jitter'], ['jitter'], ['blur', 'jitter'], ['flip', 'jitter']]
         b_list = [b for b in range(0,65,13)]
         c_list = [c for c in range(0,65,13)]
         b_c_comb = [(b,c) for b in b_list for c in c_list]
