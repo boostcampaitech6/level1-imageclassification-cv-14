@@ -16,5 +16,6 @@
         ]
     },
     "mode": "mean",
-    "weights": []
+    "weights": [],
+    "out_features": 8
 }
