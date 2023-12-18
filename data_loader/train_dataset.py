@@ -1,16 +1,16 @@
-from base import BaseDataset
 import cv2
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from base import BaseDataset
 
 class TrainDataset(BaseDataset):
     def __init__(self, data_dir):
         super().__init__(data_dir)
 
-        self.transform = A.Compose([   
+        self.transform = A.Compose([
+            A.CenterCrop(400, 300),  
+            A.Resize(224, 224), 
             A.Normalize(self.mean, self.std),
-            A.CenterCrop(400, 300),
-            A.Resize(224, 224),
             ToTensorV2()
         ])
 

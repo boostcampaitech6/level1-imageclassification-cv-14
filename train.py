@@ -1,18 +1,18 @@
+import numpy as np
 import argparse
 import collections
 import torch
-import numpy as np
 import torch.utils.data as torch_utils
+from torch.utils.data import Subset
+from sklearn.model_selection import StratifiedKFold
 import data_loader as module_data
+import model as module_arch
 import model.loss as module_loss
 import model.metric as module_metric
-import model as module_arch
 import trainer as module_trainer
-from parse_config import ConfigParser
+from parse_config import TrainConfigParser
 from utils import prepare_device, encode_multi_class
-from sklearn.model_selection import StratifiedKFold
-from torch.utils.data import Subset
- 
+
 
 # fix random seeds for reproducibility
 SEED = 42
@@ -97,5 +97,5 @@ if __name__ == '__main__':
         CustomArgs(['--project_name'], type=str, target='wandb;project_name'),
         CustomArgs(['--entity'], type=str, target='wandb;entity')
     ]
-    config = ConfigParser.from_args(args, options)
+    config = TrainConfigParser.from_args(args, options)
     main(config)
