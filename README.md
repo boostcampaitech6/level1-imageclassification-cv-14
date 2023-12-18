@@ -58,7 +58,7 @@
 |17|Not Wear|Female|>=60|  
 
 ## How to Solve
-
+- 확장성이 높은 pytorch Template에 부스트캠프에서 제공해준 baseline 중 필요한 부분만 이식하여 사용.
 
 ### 활용기법
 
