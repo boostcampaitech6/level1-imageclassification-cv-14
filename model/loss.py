@@ -1,57 +1,91 @@
-import torch.nn.functional as F
-from torchmetrics.classification import MulticlassF1Score
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-class FocalLoss(torch.nn.Module):
-    def __init__(self, alpha=1, gamma=2, logits=False, reduce=True):
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=0.25, gamma=2.0, reduction='mean'):
         super(FocalLoss, self).__init__()
+
         self.alpha = alpha
         self.gamma = gamma
-        self.logits = logits
-        self.reduce = reduce
+        self.reduction = reduction
 
-    def forward(self, inputs, targets):
-        ce_loss = torch.nn.CrossEntropyLoss()(inputs, targets)
+    def forward(self, outputs, targets):
+        probs = F.softmax(outputs, dim=1)
+        class_mask = F.one_hot(targets, num_classes=probs.size(1))
 
-        pt = torch.exp(-ce_loss)
-        F_loss = self.alpha * (1-pt)**self.gamma * ce_loss
+        probs = (probs * class_mask).sum(dim=1)
+        focal_loss = -self.alpha * (1 - probs) ** self.gamma * torch.log(probs)
 
-        if self.reduce:
-            return torch.mean(F_loss)
+        if self.reduction == 'mean':
+            return focal_loss.mean()
+        elif self.reduction == 'sum':
+            return focal_loss.sum()
         else:
-            return F_loss
+            return focal_loss
 
-class LabelSmoothingLoss(torch.nn.Module):
-    def __init__(self, classes=3, smoothing=0.0, dim=-1):
+
+class F1Loss(nn.Module):
+    def __init__(self, epsilon=1e-7):
+        super(F1Loss, self).__init__()
+
+        self.epsilon = epsilon
+
+    def forward(self, outputs, targets):
+        assert outputs.ndim == 2
+        assert targets.ndim == 1
+
+        num_classes = outputs.shape[1]
+
+        preds = F.softmax(outputs, dim=1)
+        true = F.one_hot(targets, num_classes).to(torch.float32)
+
+        tp = (true * preds).sum(dim=0).to(torch.float32)
+        fp = ((1 - true) * preds).sum(dim=0).to(torch.float32)
+        fn = (true * (1 - preds)).sum(dim=0).to(torch.float32)
+
+        precision = tp / (tp + fp + self.epsilon)
+        recall = tp / (tp + fn + self.epsilon)
+
+        f1 = 2 * (precision * recall) / (precision + recall + self.epsilon)
+        f1 = f1.clamp(min=self.epsilon, max=1 - self.epsilon)
+        
+        return 1 - f1.mean()
+
+
+class LabelSmoothingLoss(nn.Module):
+    def __init__(self, smoothing=0.1, dim=-1):
         super(LabelSmoothingLoss, self).__init__()
+
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
-        self.cls = classes
         self.dim = dim
 
-    def forward(self, pred, target):
-        pred = pred.log_softmax(dim=self.dim)
+    def forward(self, outputs, targets):
+        num_classes = outputs.shape[1]
+
+        preds = outputs.log_softmax(dim=self.dim)
+
         with torch.no_grad():
-            true_dist = torch.zeros_like(pred)
-            true_dist.fill_(self.smoothing / (self.cls - 1))
-            true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
-        return torch.mean(torch.sum(-true_dist * pred, dim=self.dim))
+            true_dist = torch.zeros_like(preds)
+            true_dist.fill_(self.smoothing / (num_classes - 1))
+            true_dist.scatter_(1, targets.data.unsqueeze(1), self.confidence)
 
-def nll_loss(output, target):
-    return F.nll_loss(output, target)
+        return torch.mean(torch.sum(-true_dist * preds, dim=self.dim))
 
-def f1_loss(input, target):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    f1 = MulticlassF1Score(num_classes=18, average=None).to(device)
-    return f1(input, target).requires_grad_(True).mean()
 
-def focal_loss(input, target):
-    focal = FocalLoss()
-    return focal(input, target)
+def nll_loss(outputs, targets):
+    return F.nll_loss(outputs, targets)
 
-def label_smoothing_loss(input, target):
-    model = LabelSmoothingLoss()
-    return model(input, target)
+def cross_entropy_loss(outputs, targets):
+    return F.cross_entropy(outputs, targets)
 
-def cross_entropy_loss(input, target):
-    return F.cross_entropy(input, target)
+def focal_loss(outputs, targets):
+    return FocalLoss()(outputs, targets)
+
+def f1_loss(outputs, targets):
+    return F1Loss()(outputs, targets)
+
+def label_smoothing_loss(outputs, targets):
+    return LabelSmoothingLoss()(outputs, targets)
