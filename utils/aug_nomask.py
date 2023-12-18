@@ -6,9 +6,9 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
 class AugNoMask():
-    def __init__(self, suffix, data_dir, brightness, contrast):
-        self.data_dir = data_dir
-        self.dest_dir = data_dir + suffix
+    def __init__(self, suffix, src_dir, brightness, contrast):
+        self.src_dir = src_dir
+        self.dest_dir = src_dir + suffix
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
@@ -77,10 +77,10 @@ class AugNoMask():
                 self.multiple_process(src_paths, mod_dest_paths, [funcs for _ in range(len(mod_dest_paths))])
 
     def setup(self):
-        profiles = [p for p in os.listdir(self.data_dir) if not p.startswith('.')]
+        profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
 
         for profile in profiles:
-            src_profile_dir = os.path.join(self.data_dir, profile)
+            src_profile_dir = os.path.join(self.src_dir, profile)
             dest_profile_dir = os.path.join(self.dest_dir, profile)
             self.makefolder(dest_profile_dir)
 
@@ -102,8 +102,8 @@ class AugNoMask():
             self.src_incorrect_pathes.append(src_path)
             self.dest_incorrect_pathes.append(dest_path)
 
-def main(suffix, data_dir):
-    aug_data = AugNoMask(suffix, data_dir, brightness=64, contrast=64)
+def main(suffix, src_dir):
+    aug_data = AugNoMask(suffix, src_dir, brightness=64, contrast=64)
     aug_data.aug_data()
     print('Data augmentation completed.')
 
@@ -111,8 +111,8 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
     args.add_argument('-n', '--suffix', default='_aug', type=str,
                       help='add folder name to aug ver data folder')
-    args.add_argument('-d', '--data_dir', default="./data/train/images", type=str,
+    args.add_argument('-d', '--src_dir', default="./data/train/images", type=str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()
-    main(args.suffix, args.data_dir)
+    main(args.suffix, args.src_dir)

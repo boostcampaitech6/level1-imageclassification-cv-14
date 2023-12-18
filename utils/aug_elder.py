@@ -7,8 +7,8 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
 class AugElder():
-    def __init__(self, data_dir):
-        self.data_dir = data_dir
+    def __init__(self, src_dir):
+        self.src_dir = src_dir
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
@@ -76,10 +76,10 @@ class AugElder():
                 self.multiple_process(src_paths, mod_dest_paths, funcs*len(src_paths))
 
     def setup(self):
-        profiles = [p for p in os.listdir(self.data_dir) if not p.startswith('.')]
+        profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
 
         for profile in profiles:
-            src_profile_dir = os.path.join(self.data_dir, profile)
+            src_profile_dir = os.path.join(self.src_dir, profile)
             id, gender, race, age = profile.split("_")
 
             if int(age)<60: continue
@@ -99,7 +99,7 @@ class AugElder():
             self.new_id += 1
 
             dest_elder_profile = '_'.join([elder_id, gender, race, age])
-            dest_elder_dir = os.path.join(self.data_dir, dest_elder_profile)
+            dest_elder_dir = os.path.join(self.src_dir, dest_elder_profile)
             self.makefolder(dest_elder_dir)
             duplicated.append(dest_elder_dir)
         self.dest_dirs.append(duplicated)
@@ -141,15 +141,15 @@ class AugElder():
 
         self.multiple_process(tasks[0], tasks[1], tasks[2])
 
-def main(data_dir):
-    aug_data = AugElder(data_dir)
+def main(src_dir):
+    aug_data = AugElder(src_dir)
     aug_data.aug_elder_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description = 'data preprocessing')
-    args.add_argument('-d', '--data_dir', default = None, type = str,
+    args.add_argument('-d', '--src_dir', default = None, type = str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()
-    main(args.data_dir)
+    main(args.src_dir)
