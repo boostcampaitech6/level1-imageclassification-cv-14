@@ -85,22 +85,19 @@ class AugNoMask():
             self.makefolder(dest_profile_dir)
 
             for file_name in os.listdir(src_profile_dir):
-                self.categorize_file(src_profile_dir, dest_profile_dir, file_name)
-    
-    def categorize_file(self, src_dir, dest_dir, file_name):
-        _file_name, ext = os.path.splitext(file_name)
-        src_path = os.path.join(src_dir, file_name)
-        dest_path = os.path.join(dest_dir, _file_name)
+                _file_name, ext = os.path.splitext(file_name)
+                src_img_path = os.path.join(src_profile_dir, file_name)
+                dest_img_path = os.path.join(dest_profile_dir, _file_name)
 
-        if _file_name.startswith('mask'):
-            self.src_mask_pathes.append(src_path)
-            self.dest_mask_pathes.append(dest_path)
-        elif _file_name.startswith('normal'):
-            self.src_normal_pathes.append(src_path)
-            self.dest_normal_pathes.append(dest_path)
-        elif _file_name.startswith('incorrect'):
-            self.src_incorrect_pathes.append(src_path)
-            self.dest_incorrect_pathes.append(dest_path)
+                if _file_name.startswith('mask'):
+                    self.src_mask_pathes.append(src_img_path)
+                    self.dest_mask_pathes.append(dest_img_path)
+                elif _file_name.startswith('normal'):
+                    self.src_normal_pathes.append(src_img_path)
+                    self.dest_normal_pathes.append(dest_img_path)
+                elif _file_name.startswith('incorrect'):
+                    self.src_incorrect_pathes.append(src_img_path)
+                    self.dest_incorrect_pathes.append(dest_img_path)
 
 def main(suffix, src_dir):
     aug_data = AugNoMask(suffix, src_dir, brightness=64, contrast=64)
