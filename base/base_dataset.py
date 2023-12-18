@@ -39,7 +39,11 @@ class BaseDataset(Dataset):
 
             img_folder = os.path.join(self.data_dir, profile)
             for file_name in os.listdir(img_folder):
-                _file_name = file_name.split('_')[0]
+                if '_' in file_name:
+                    _file_name = file_name.split('_')[0]
+                else:
+                    _file_name, _ = os.path.splitext(file_name)
+                    
                 if _file_name not in self._file_names:
                     continue
 
