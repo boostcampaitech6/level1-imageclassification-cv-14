@@ -24,7 +24,7 @@ class MultiLabelVGG19(BaseModel):
             param.requires_grad = False
 
         self.classifier = nn.Sequential(
-            nn.Linear(4096, num_classes)
+            nn.Linear(4096, 8)
         )
     
     def forward(self, x):
