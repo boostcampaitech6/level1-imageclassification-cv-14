@@ -1,27 +1,32 @@
 import os
 import cv2
+import json
+import random
 import argparse
 import multiprocessing
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
 class AugNoMask():
-    def __init__(self, src_dir, dest_dir, brightness, contrast):
-        self.src_dir = src_dir
-        self.dest_dir = dest_dir
+    def __init__(self, config):
+        self.src_dir = config["src_dir"]
+        self.dest_dir = config["dest_dir"]
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
-        self.brightness = brightness
-        self.contrast = contrast
+        self.brightness = 64
+        self.contrast = 64
 
-        # categorical path init
-        self.src_mask_paths = []
-        self.src_normal_paths = []
+        # categorical paths init
+        self.cate = config["class"]
         self.src_incorrect_paths = []
-        self.dest_mask_paths = []
-        self.dest_normal_paths = []
         self.dest_incorrect_paths = []
+        self.src_mask_paths = []
+        self.dest_mask_paths = []
+        self.src_normal_paths = []
+        self.dest_normal_paths = []
+        
+        self.transforms = config["transform"]
 
         # setup
         self.setup()
@@ -39,19 +44,18 @@ class AugNoMask():
                 src_img_path = os.path.join(src_profile_dir, file_name)
                 dest_img_path = os.path.join(dest_profile_dir, _file_name)
 
-                if _file_name.startswith('mask'):
+                if self.cate["mask"] and _file_name.startswith('mask'):
                     self.src_mask_paths.append(src_img_path)
                     self.dest_mask_paths.append(dest_img_path)
-                elif _file_name.startswith('normal'):
+                if self.cate["normal"] and _file_name.startswith('normal'):
                     self.src_normal_paths.append(src_img_path)
                     self.dest_normal_paths.append(dest_img_path)
-                elif _file_name.startswith('incorrect'):
+                if self.cate["incorrect"] and _file_name.startswith('incorrect'):
                     self.src_incorrect_paths.append(src_img_path)
                     self.dest_incorrect_paths.append(dest_img_path)
 
     def makefolder(self, new_dir_path):
         os.makedirs(new_dir_path, exist_ok=True)
-
     
     def single_process(self, src_img_path, dest_img_path, funcs):
         img = self.get_img(src_img_path)
@@ -61,26 +65,27 @@ class AugNoMask():
         cv2.imwrite(dest_img_path, img)
 
     def multiple_process(self, src_img_paths, dest_img_paths, n_funcs):
-        with ProcessPoolExecutor(max_workers=self.n_cpu) as executor:
+        if len(src_img_paths) == 0 : return
+        with ProcessPoolExecutor(max_workers=self.n_cpu-1) as executor:
             list(tqdm(executor.map(self.single_process, src_img_paths, dest_img_paths, n_funcs), total=len(src_img_paths)))
 
     def aug_data(self):
-        process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
-
+        b_c_comb = [(b,c) for b in list(range(0, 65, 13)) for c in list(range(0, 65, 13))]
+        b_c_comb = random.sample(b_c_comb, len(self.transforms))
         for src_img_paths, dest_img_paths, category in ([(self.src_mask_paths, self.dest_mask_paths, 'mask'),
-                                                 (self.src_normal_paths, self.dest_normal_paths, 'normal'),
-                                                 (self.src_incorrect_paths, self.dest_incorrect_paths, 'incorrect')]):
-            process = [['']] if category == 'mask' else process_types
-            for funcs in process:
-                suffix = '_'.join(funcs)
+                                                         (self.src_normal_paths, self.dest_normal_paths, 'normal'),
+                                                         (self.src_incorrect_paths, self.dest_incorrect_paths, 'incorrect')]):
+            for idx, funcs in enumerate(self.transforms):
+                b, c = b_c_comb[idx]
+                suffix = '_'.join(funcs) + f'_b{b}_c{c}' if 'jitter' in funcs else '_'.join(funcs)
                 mod_dest_img_paths = [p + f'_{suffix}.jpg' for p in dest_img_paths]
-                self.multiple_process(src_img_paths, mod_dest_img_paths, [funcs for _ in range(len(src_img_paths))])
+                self.multiple_process(src_img_paths, mod_dest_img_paths, [funcs] * len(src_img_paths))
 
     def get_img(self, img_path):
         return cv2.imread(img_path)
 
     def blur(self, img):
-        return cv2.GaussianBlur(img, (0,0), sigmaX=3)
+        return cv2.GaussianBlur(img, (0,0), sigmaX=2)
 
     def flip(self, img):
         return cv2.flip(img, 1)
@@ -98,10 +103,19 @@ class AugNoMask():
             img = cv2.convertScaleAbs(img, alpha=f, beta=127*(1-f))
 
         return img
+    
+    def clahe(self, img):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # CLAHE 생성
+        img[:, :, 0] = clahe.apply(img[:, :, 0])        # 밝기 채널에 CLAHE 적용
+        img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
+        return img
 
-def main(src_dir, dest_dir):
-    aug_data = AugNoMask(src_dir, dest_dir, brightness=64, contrast=64)
-    aug_data.aug_data()
+
+def main(config):
+    random.seed(42)
+    aug_mask = AugNoMask(config['mask'])
+    aug_mask.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
@@ -110,4 +124,7 @@ if __name__ == '__main__':
                       help='config file path (default: None)')
 
     args = args.parse_args()
-    main(args.config)
+    
+    with open(args.config, 'r') as f :
+        config = json.load(f)
+    main(config)
