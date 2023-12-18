@@ -29,13 +29,13 @@ class AugElder():
         self.setup()
 
     def makefolder(self, new_dir_path):
-        os.makedirs(new_dir_path, exist_ok=False)
+        os.makedirs(new_dir_path, exist_ok = False)
 
     def get_img(self, img_path):
         return cv2.imread(img_path)
 
     def blur(self, img):
-        return cv2.GaussianBlur(img, (0,0), sigmaX=3)
+        return cv2.GaussianBlur(img, (0,0), sigmaX = 3)
 
     def flip(self, img):
         return cv2.flip(img, 1)
@@ -46,11 +46,11 @@ class AugElder():
         if brightness != 0:
             shadow = brightness if brightness > 0 else 0
             highlight = 255 if brightness > 0 else 0
-            img = cv2.convertScaleAbs(img, alpha=(highlight - shadow)/255, beta=shadow)
+            img = cv2.convertScaleAbs(img, alpha = (highlight - shadow)/255, beta = shadow)
 
         if contrast != 0:
             f = 131*(contrast + 127)/(127*(131-contrast))
-            img = cv2.convertScaleAbs(img, alpha=f, beta=127*(1-f))
+            img = cv2.convertScaleAbs(img, alpha = f, beta = 127*(1-f))
 
         return img
     
@@ -61,8 +61,8 @@ class AugElder():
         cv2.imwrite(dest_img_path, img)
 
     def multiple_process(self,src_list, dest_list, n_funcs):
-        with ProcessPoolExecutor(max_workers=self.n_cpu) as executor:
-            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total=len(src_list)))
+        with ProcessPoolExecutor(max_workers = self.n_cpu) as executor:
+            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total = len(src_list)))
 
     def aug_data(self):
         process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
@@ -72,7 +72,7 @@ class AugElder():
                                                 (self.src_incorrect_pathes, self.dest_incorrect_pathes, 'incorrect')]:
             for funcs in process_types:
                 suffix = ''.join(funcs)
-                mod_dest_paths = [p+f'_{suffix}.jpg' for p in dest_paths]
+                mod_dest_paths = [p + f'_{suffix}.jpg' for p in dest_paths]
                 self.multiple_process(src_paths, mod_dest_paths, funcs*len(src_paths))
 
     def setup(self):
@@ -147,8 +147,8 @@ def main(data_dir):
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-d', '--data_dir', default=None, type=str,
+    args = argparse.ArgumentParser(description = 'data preprocessing')
+    args.add_argument('-d', '--data_dir', default = None, type = str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()

@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor
 class AugNoMask():
     def __init__(self, suffix, data_dir, brightness, contrast):
         self.data_dir = data_dir
-        self.dest_dir = data_dir+suffix
+        self.dest_dir = data_dir + suffix
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
@@ -72,8 +72,8 @@ class AugNoMask():
             process = [['']] if category == 'mask' else process_types
             for funcs in process:
                 suffix = ''.join(funcs)
-                suffix = '_'+suffix if suffix else suffix
-                mod_dest_paths = [p+f'{suffix}.jpg' for p in dest_paths]
+                suffix = '_' + suffix if suffix else suffix
+                mod_dest_paths = [p + f'{suffix}.jpg' for p in dest_paths]
                 self.multiple_process(src_paths, mod_dest_paths, [funcs for _ in range(len(mod_dest_paths))])
 
     def setup(self):
