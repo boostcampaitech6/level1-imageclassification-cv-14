@@ -59,21 +59,21 @@ class AugNoMask():
                 img = getattr(self,fun)(img)
         cv2.imwrite(dest_img_path, img)
 
-    def multiple_process(self, src_list, dest_list, n_funcs):
+    def multiple_process(self, src_img_paths, dest_img_paths, n_funcs):
         with ProcessPoolExecutor(max_workers=self.n_cpu) as executor:
-            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total=len(src_list)))
+            list(tqdm(executor.map(self.single_process, src_img_paths, dest_img_paths, n_funcs), total=len(src_img_paths)))
 
     def aug_data(self):
         process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
 
-        for src_paths, dest_paths, category in ([(self.src_mask_pathes, self.dest_mask_pathes, 'mask'),
+        for src_img_paths, dest_img_paths, category in ([(self.src_mask_pathes, self.dest_mask_pathes, 'mask'),
                                                  (self.src_normal_pathes, self.dest_normal_pathes, 'normal'),
                                                  (self.src_incorrect_pathes, self.dest_incorrect_pathes, 'incorrect')]):
             process = [['']] if category == 'mask' else process_types
             for funcs in process:
                 suffix = '_'.join(funcs)
-                mod_dest_paths = [p + f'_{suffix}.jpg' for p in dest_paths]
-                self.multiple_process(src_paths, mod_dest_paths, [funcs for _ in range(len(mod_dest_paths))])
+                mod_dest_img_paths = [p + f'_{suffix}.jpg' for p in dest_img_paths]
+                self.multiple_process(src_img_paths, mod_dest_img_paths, [funcs for _ in range(len(src_img_paths))])
 
     def setup(self):
         profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
