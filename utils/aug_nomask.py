@@ -16,12 +16,12 @@ class AugNoMask():
         self.contrast = contrast
 
         # categorical path init
-        self.src_mask_pathes = []
-        self.src_normal_pathes = []
-        self.src_incorrect_pathes = []
-        self.dest_mask_pathes = []
-        self.dest_normal_pathes = []
-        self.dest_incorrect_pathes = []
+        self.src_mask_paths = []
+        self.src_normal_paths = []
+        self.src_incorrect_paths = []
+        self.dest_mask_paths = []
+        self.dest_normal_paths = []
+        self.dest_incorrect_paths = []
 
         # setup
         self.setup()
@@ -66,9 +66,9 @@ class AugNoMask():
     def aug_data(self):
         process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
 
-        for src_img_paths, dest_img_paths, category in ([(self.src_mask_pathes, self.dest_mask_pathes, 'mask'),
-                                                 (self.src_normal_pathes, self.dest_normal_pathes, 'normal'),
-                                                 (self.src_incorrect_pathes, self.dest_incorrect_pathes, 'incorrect')]):
+        for src_img_paths, dest_img_paths, category in ([(self.src_mask_paths, self.dest_mask_paths, 'mask'),
+                                                 (self.src_normal_paths, self.dest_normal_paths, 'normal'),
+                                                 (self.src_incorrect_paths, self.dest_incorrect_paths, 'incorrect')]):
             process = [['']] if category == 'mask' else process_types
             for funcs in process:
                 suffix = '_'.join(funcs)
@@ -89,14 +89,14 @@ class AugNoMask():
                 dest_img_path = os.path.join(dest_profile_dir, _file_name)
 
                 if _file_name.startswith('mask'):
-                    self.src_mask_pathes.append(src_img_path)
-                    self.dest_mask_pathes.append(dest_img_path)
+                    self.src_mask_paths.append(src_img_path)
+                    self.dest_mask_paths.append(dest_img_path)
                 elif _file_name.startswith('normal'):
-                    self.src_normal_pathes.append(src_img_path)
-                    self.dest_normal_pathes.append(dest_img_path)
+                    self.src_normal_paths.append(src_img_path)
+                    self.dest_normal_paths.append(dest_img_path)
                 elif _file_name.startswith('incorrect'):
-                    self.src_incorrect_pathes.append(src_img_path)
-                    self.dest_incorrect_pathes.append(dest_img_path)
+                    self.src_incorrect_paths.append(src_img_path)
+                    self.dest_incorrect_paths.append(dest_img_path)
 
 def main(suffix, src_dir):
     aug_data = AugNoMask(suffix, src_dir, brightness=64, contrast=64)
