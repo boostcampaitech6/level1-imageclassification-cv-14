@@ -55,8 +55,8 @@ class AugNoMask():
     def single_process(self, src_img_path, dest_img_path, funcs):
         img = self.get_img(src_img_path)
         if funcs != [''] :
-            for fun in funcs :
-                img = getattr(self,fun)(img)
+            for func in funcs :
+                img = getattr(self,func)(img)
         cv2.imwrite(dest_img_path, img)
 
     def multiple_process(self, src_img_paths, dest_img_paths, n_funcs):
