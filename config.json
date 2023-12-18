@@ -3,14 +3,13 @@
     "n_gpu": 1,
 
     "arch": {
-        "type": "CNN",
+        "type": "MultiLabelEfficientB0",
         "args": {}
     },
     "dataset": {
         "type": "TrainDataset",
-        "args": {
-            "data_dir": "./data/train/images"
-        }
+        "args": {},
+        "data_dir": ["./data/train/images", "./data/train/images_elder", "./data/train/images_nomask_elder"]
     },
     "train_loader": {
         "type": "BasicDataLoader",
@@ -48,10 +47,10 @@
         }
     },
     "trainer": {
-        "type": "Trainer",
+        "type": "MultiLabelTrainer",
         "args": {},
 
-        "epochs": 30,
+        "epochs": 50,
 
         "save_dir": "saved/",
         "save_period": 1,
@@ -62,8 +61,8 @@
     },
     "k_splits": 5,
     "wandb": {
-        "exp_name": "exp",
-        "exp_num": 0,
+        "exp_name": "MultiLabelB0Aug",
+        "exp_num": 1,
         "project_name": "Image_Classification",
         "entity": "cv-14"
     }

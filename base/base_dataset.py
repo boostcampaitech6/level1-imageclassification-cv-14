@@ -14,19 +14,19 @@ class BaseDataset(Dataset):
         "mask3": MaskLabels.MASK,
         "mask4": MaskLabels.MASK,
         "mask5": MaskLabels.MASK,
-        "incorrect_mask": MaskLabels.INCORRECT,
+        "incorrect": MaskLabels.INCORRECT,
         "normal": MaskLabels.NORMAL,
     }
-
-    image_paths = []
-    mask_labels = []
-    gender_labels = []
-    age_labels = []
 
     def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)):
         self.data_dir = data_dir
         self.mean = mean
         self.std = std
+        
+        self.image_paths = []
+        self.mask_labels = []
+        self.gender_labels = []
+        self.age_labels = []
 
         self.setup()
         self.calc_statistics()
@@ -39,7 +39,7 @@ class BaseDataset(Dataset):
 
             img_folder = os.path.join(self.data_dir, profile)
             for file_name in os.listdir(img_folder):
-                _file_name, ext = os.path.splitext(file_name)
+                _file_name = file_name.split('_')[0]
                 if _file_name not in self._file_names:
                     continue
 
