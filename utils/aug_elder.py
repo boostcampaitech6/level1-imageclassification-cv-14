@@ -28,42 +28,6 @@ class AugElder():
         # setup
         self.setup()
 
-    def makefolder(self, new_dir_path):
-        os.makedirs(new_dir_path, exist_ok = False)
-
-    def get_img(self, img_path):
-        return cv2.imread(img_path)
-
-    def blur(self, img):
-        return cv2.GaussianBlur(img, (0,0), sigmaX = 3)
-
-    def flip(self, img):
-        return cv2.flip(img, 1)
-
-    # https://stackoverflow.com/questions/39308030/how-do-i-increase-the-contrast-of-an-image-in-python-opencv 
-    def jitter(self, img):
-        brightness, contrast = self.brightness, self.contrast
-        if brightness != 0:
-            shadow = brightness if brightness > 0 else 0
-            highlight = 255 if brightness > 0 else 0
-            img = cv2.convertScaleAbs(img, alpha = (highlight - shadow)/255, beta = shadow)
-
-        if contrast != 0:
-            f = 131*(contrast + 127)/(127*(131-contrast))
-            img = cv2.convertScaleAbs(img, alpha = f, beta = 127*(1-f))
-
-        return img
-    
-    def single_process(self, src_img_path, dest_img_path, funcs):
-        img = self.get_img(src_img_path)
-        for func in funcs :
-            img = getattr(self,func)(img)
-        cv2.imwrite(dest_img_path, img)
-
-    def multiple_process(self,src_list, dest_list, n_funcs):
-        with ProcessPoolExecutor(max_workers = self.n_cpu) as executor:
-            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total = len(src_list)))
-
     def setup(self):
         profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
 
@@ -92,6 +56,9 @@ class AugElder():
             self.makefolder(dest_elder_dir)
             duplicated.append(dest_elder_dir)
         self.dest_dirs.append(duplicated)
+
+    def makefolder(self, new_dir_path):
+        os.makedirs(new_dir_path, exist_ok = False)
     
     def categorize_file(self, src_dir, dest_dirs, file_name):
         _file_name, ext = os.path.splitext(file_name)
@@ -103,7 +70,7 @@ class AugElder():
         
         self.src_files_paths.append(src_file_path)
         self.dest_files_paths.append(dest_files_paths)
-    
+
     def aug_data(self):
         process_types = [['blur','flip','jitter'], ['flip','jitter'], ['jitter'], ['blur', 'jitter'], ['flip', 'jitter']]
         b_list = [b for b in range(0,65,13)]
@@ -130,6 +97,39 @@ class AugElder():
 
         self.multiple_process(tasks[0], tasks[1], tasks[2])
 
+    def multiple_process(self,src_list, dest_list, n_funcs):
+        with ProcessPoolExecutor(max_workers = self.n_cpu) as executor:
+            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total = len(src_list)))
+
+    def single_process(self, src_img_path, dest_img_path, funcs):
+        img = self.get_img(src_img_path)
+        for func in funcs :
+            img = getattr(self,func)(img)
+        cv2.imwrite(dest_img_path, img)
+
+    def get_img(self, img_path):
+        return cv2.imread(img_path)
+
+    def blur(self, img):
+        return cv2.GaussianBlur(img, (0,0), sigmaX = 3)
+
+    def flip(self, img):
+        return cv2.flip(img, 1)
+
+    # https://stackoverflow.com/questions/39308030/how-do-i-increase-the-contrast-of-an-image-in-python-opencv 
+    def jitter(self, img):
+        brightness, contrast = self.brightness, self.contrast
+        if brightness != 0:
+            shadow = brightness if brightness > 0 else 0
+            highlight = 255 if brightness > 0 else 0
+            img = cv2.convertScaleAbs(img, alpha = (highlight - shadow)/255, beta = shadow)
+
+        if contrast != 0:
+            f = 131*(contrast + 127)/(127*(131-contrast))
+            img = cv2.convertScaleAbs(img, alpha = f, beta = 127*(1-f))
+
+        return img
+
 def main(src_dir):
     aug_data = AugElder(src_dir)
     aug_data.aug_data()
@@ -137,7 +137,7 @@ def main(src_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description = 'data preprocessing')
-    args.add_argument('-d', '--src_dir', default = None, type = str,
+    args.add_argument('-d', '--src_dir', default = '/data/ephemeral/home/level1-imageclassification-cv-14/data/train/debug_images_aug', type = str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()
