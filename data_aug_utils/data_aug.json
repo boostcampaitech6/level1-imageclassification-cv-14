@@ -1,0 +1,22 @@
+{
+    "nomask": {
+      "transform": [
+        ["blur"],
+        ["flip"],
+        ["jitter"],
+        ["blur"],
+        ["flip"]
+      ],
+      "args": []
+    },
+    "elder": {
+      "transform": [
+        ["blur","flip","jitter"],
+        ["flip", "jitter"],
+        ["jitter"],
+        ["blur", "jitter"],
+        ["flip", "jitter"]
+        ],
+      "args": []
+    }
+  }
