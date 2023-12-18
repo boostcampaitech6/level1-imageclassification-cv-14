@@ -137,7 +137,7 @@ def main(src_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description = 'data preprocessing')
-    args.add_argument('-d', '--src_dir', default = '/data/ephemeral/home/level1-imageclassification-cv-14/data/train/debug_images_aug', type = str,
+    args.add_argument('-d', '--src_dir', default = './data/train/images_aug', type = str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()

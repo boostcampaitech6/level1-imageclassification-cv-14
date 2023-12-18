@@ -6,9 +6,9 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
 class AugNoMask():
-    def __init__(self, suffix, src_dir, brightness, contrast):
+    def __init__(self, src_dir, dest_dir, brightness, contrast):
         self.src_dir = src_dir
-        self.dest_dir = src_dir + suffix
+        self.dest_dir = dest_dir
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
@@ -99,17 +99,17 @@ class AugNoMask():
 
         return img
 
-def main(suffix, src_dir):
-    aug_data = AugNoMask(suffix, src_dir, brightness=64, contrast=64)
+def main(src_dir, dest_dir):
+    aug_data = AugNoMask(src_dir, dest_dir, brightness=64, contrast=64)
     aug_data.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-n', '--suffix', default='_aug', type=str,
+    args.add_argument('-s', '--src_dir', default='./data/train/images', type=str,
+                      help='src data folder path (default: ./data/train/images)')
+    args.add_argument('-d', '--dest_dir', default='./data/train/images_aug', type=str,
                       help='add folder name to aug ver data folder')
-    args.add_argument('-d', '--src_dir', default='./data/train/images', type=str,
-                      help='data folder path (default: ./data/train)')
-    
+
     args = args.parse_args()
-    main(args.suffix, args.src_dir)
+    main(args.src_dir, args.dest_dir)
