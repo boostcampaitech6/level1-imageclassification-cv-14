@@ -3,7 +3,7 @@ import argparse
 import collections
 import torch
 import torch.utils.data as torch_utils
-from torch.utils.data import Subset
+from torch.utils.data import Subset, ConcatDataset
 from sklearn.model_selection import StratifiedKFold
 import data_loader as module_data
 import model as module_arch
@@ -24,13 +24,20 @@ np.random.seed(SEED)
 def main(config):
     logger = config.get_logger('train')
 
-    dataset = config.init_obj('dataset', module_data)
-    labels = [
-        encode_multi_class(mask, gender, age)
-        for mask, gender, age in zip(
-            dataset.mask_labels, dataset.gender_labels, dataset.age_labels
-        )
-    ]
+    datasets, labels = [], []
+    for data_dir in config['dataset']['data_dir']:
+        _dataset = config.init_obj('dataset', module_data, data_dir)
+        _labels = [
+            encode_multi_class(mask, gender, age)
+            for mask, gender, age in zip(
+                _dataset.mask_labels, _dataset.gender_labels, _dataset.age_labels
+            )
+        ]
+
+        datasets.append(_dataset)
+        labels += _labels
+
+    dataset = ConcatDataset(datasets)
     
     k_splits = config['k_splits']
     skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=SEED)
