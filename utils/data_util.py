@@ -86,7 +86,7 @@ def encode_multi_class(mask_label, gender_label, age_label) -> int:
 
 def decode_multi_class(multi_class_label) -> Tuple[MaskLabels, GenderLabels, AgeLabels]:
     """인코딩된 다중 라벨을 각각의 라벨로 디코딩하는 메서드"""
-    mask_label = torch.div(multi_class_label, 6, rounding_mode='floor') % 3
+    mask_label = torch.div(multi_class_label, 6, rounding_mode='floor')
     gender_label = torch.div(multi_class_label, 3, rounding_mode='floor') % 2
     age_label = multi_class_label % 3
     return mask_label, gender_label, age_label
