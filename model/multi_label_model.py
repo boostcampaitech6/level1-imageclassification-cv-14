@@ -14,3 +14,20 @@ class MultiLabelEfficientB0(BaseModel):
     
     def forward(self, x):
         return self.pretrained_model(x)
+
+class MultiLabelVGG19(BaseModel):
+    def __init__(self, num_classes=18):
+        super().__init__()
+        self.pretrained_model = models.vgg19(weights=models.VGG19_Weights.DEFAULT).features
+
+        for param in self.pretrained_model.parameters():
+            param.requires_grad = False
+
+        self.classifier = nn.Sequential(
+            nn.Linear(4096, num_classes)
+        )
+    
+    def forward(self, x):
+        x = self.pretrained_model(x)
+        x = self.classifier(x.view(x.size(0),-1))
+        return x
