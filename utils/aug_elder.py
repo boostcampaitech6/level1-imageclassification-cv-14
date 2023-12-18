@@ -56,24 +56,13 @@ class AugElder():
     
     def single_process(self, src_img_path, dest_img_path, funcs):
         img = self.get_img(src_img_path)
-        for fun in funcs :
-            img = getattr(self,fun)(img)
+        for func in funcs :
+            img = getattr(self,func)(img)
         cv2.imwrite(dest_img_path, img)
 
     def multiple_process(self,src_list, dest_list, n_funcs):
         with ProcessPoolExecutor(max_workers = self.n_cpu) as executor:
             list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total = len(src_list)))
-
-    def aug_data(self):
-        process_types = [[''], ['blur'], ['flip'], ['jitter'], ['blur', 'flip']]
-
-        for src_paths, dest_paths, category in [(self.src_mask_pathes, self.dest_mask_pathes, 'mask'),
-                                                (self.src_normal_pathes, self.dest_normal_pathes, 'normal'),
-                                                (self.src_incorrect_pathes, self.dest_incorrect_pathes, 'incorrect')]:
-            for funcs in process_types:
-                suffix = ''.join(funcs)
-                mod_dest_paths = [p + f'_{suffix}.jpg' for p in dest_paths]
-                self.multiple_process(src_paths, mod_dest_paths, funcs*len(src_paths))
 
     def setup(self):
         profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
@@ -115,7 +104,7 @@ class AugElder():
         self.src_files_paths.append(src_file_path)
         self.dest_files_paths.append(dest_files_paths)
     
-    def aug_elder_data(self):
+    def aug_data(self):
         process_types = [['blur','flip','jitter'], ['flip','jitter'], ['jitter'], ['blur', 'jitter'], ['flip', 'jitter']]
         b_list = [b for b in range(0,65,13)]
         c_list = [c for c in range(0,65,13)]
@@ -143,7 +132,7 @@ class AugElder():
 
 def main(src_dir):
     aug_data = AugElder(src_dir)
-    aug_data.aug_elder_data()
+    aug_data.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
