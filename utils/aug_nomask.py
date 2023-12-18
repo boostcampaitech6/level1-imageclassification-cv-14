@@ -107,7 +107,7 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
     args.add_argument('-n', '--suffix', default='_aug', type=str,
                       help='add folder name to aug ver data folder')
-    args.add_argument('-d', '--src_dir', default="./data/train/images", type=str,
+    args.add_argument('-d', '--src_dir', default='./data/train/images', type=str,
                       help='data folder path (default: ./data/train)')
     
     args = args.parse_args()
