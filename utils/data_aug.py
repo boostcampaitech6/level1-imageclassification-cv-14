@@ -2,8 +2,11 @@ from aug_nomask import *
 from aug_elder import *
 
 def main(suffix, src_data):
-    AugNoMask(suffix, src_data, brightness=64, contrast=64).aug_data()
-    AugElder(src_data+suffix).aug_elder_data()
+    aug_nomask_data = AugNoMask(suffix, src_data, brightness=64, contrast=64)
+    aug_elder_data = AugElder(src_data+suffix)
+
+    aug_nomask_data.aug_data()
+    aug_elder_data.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
