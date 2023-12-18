@@ -106,34 +106,8 @@ def main(src_dir, dest_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-c', '--config', default=None, type=str,
+    args.add_argument('-c', '--config', default='./data_aug_utils/aug_config.json', type=str,
                       help='config file path (default: None)')
-    args.add_argument('-s', '--src_dir', default='./data/train/images', type=str,
-                      help='src data folder path (default: ./data/train/images)')
-    args.add_argument('-d', '--dest_dir', default='./data/train/images_aug', type=str,
-                      help='add folder name to aug ver data folder')
 
     args = args.parse_args()
-    main(args.src_dir, args.dest_dir)
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default: None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default=None, type=str,
-                      help='indices of GPUs to enable (default: all)')
-
-    # custom cli options to modify configuration from default values given in json file.
-    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
-    options = [
-        CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size'),
-        CustomArgs(['-e', '--exp_name'], type=str, target='wandb;exp_name'),
-        CustomArgs(['-n', '--exp_num'], type=int, target='wandb;exp_num'),
-        CustomArgs(['--project_name'], type=str, target='wandb;project_name'),
-        CustomArgs(['--entity'], type=str, target='wandb;entity')
-    ]
-    config = TrainConfigParser.from_args(args, options)
-    main(config)
+    main(args.config)
