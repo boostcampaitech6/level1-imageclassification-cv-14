@@ -8,7 +8,11 @@
     },
     "dataset": {
         "type": "TrainDataset",
-        "args": {},
+        "args": {
+            "calc_mean": true,
+            "calc_std": true,
+            "use_all_data": false
+        },
         "data_dir": ["./data/train/images", "./data/train/images_elder", "./data/train/images_nomask_elder"]
     },
     "train_loader": {
