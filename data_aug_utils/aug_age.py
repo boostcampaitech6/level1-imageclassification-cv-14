@@ -123,13 +123,14 @@ class AugElder():
         return img
 
     def clahe(self, img):
+        origin = img.copy()
         img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
         clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # CLAHE 생성
         img[:, :, 0] = clahe.apply(img[:, :, 0])        # 밝기 채널에 CLAHE 적용
         img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
-        return img
+        return (img/2) + (origin/2)
 
-    def remove_back(img):
+    def remove_back(self,img):
         # rembg
         img = remove(img)
         img = np.array(img)

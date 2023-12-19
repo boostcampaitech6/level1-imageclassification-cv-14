@@ -97,7 +97,7 @@ class AugNoMask():
     def flip(self, img):
         return cv2.flip(img, 1)
     
-    def remove_back(img):
+    def remove_back(self, img):
         # rembg
         img = remove(img)
         img = np.array(img)
@@ -116,7 +116,6 @@ class AugNoMask():
 
         return white_bg
 
-
     # https://stackoverflow.com/questions/39308030/how-do-i-increase-the-contrast-of-an-image-in-python-opencv 
     def jitter(self, img):
         brightness, contrast = self.brightness, self.contrast
@@ -132,11 +131,12 @@ class AugNoMask():
         return img
     
     def clahe(self, img):
+        origin = img.copy()
         img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
         clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # CLAHE 생성
         img[:, :, 0] = clahe.apply(img[:, :, 0])        # 밝기 채널에 CLAHE 적용
         img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
-        return img
+        return (img/2) + (origin/2)
 
 
 def main(config):
