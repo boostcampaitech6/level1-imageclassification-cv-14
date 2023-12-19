@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import argparse
 import collections
 import torch
@@ -20,6 +21,7 @@ torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
+random.seed(SEED)
 
 def main(config):
     logger = config.get_logger('train')

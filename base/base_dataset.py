@@ -3,6 +3,8 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 from utils import MaskLabels, GenderLabels, AgeLabels, encode_multi_class
+import random
+from tqdm import tqdm
 
 
 class BaseDataset(Dataset):
@@ -18,10 +20,14 @@ class BaseDataset(Dataset):
         "normal": MaskLabels.NORMAL,
     }
 
-    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)):
+    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), 
+                 calc_mean=False, calc_std=False, use_all_data=False):
         self.data_dir = data_dir
         self.mean = mean
         self.std = std
+        self.calc_mean = calc_mean
+        self.calc_std = calc_std
+        self.use_all_data = use_all_data
         
         self.image_paths = []
         self.mask_labels = []
@@ -85,16 +91,30 @@ class BaseDataset(Dataset):
 
     def calc_statistics(self):
         has_statistics = self.mean is not None and self.std is not None
-        if not has_statistics:
-            print(
-                "[Warning] Calculating statistics... It can take a long time depending on your CPU machine"
-            )
+        do_calc = self.calc_mean or self.calc_std
+        
+        if not do_calc:
+            assert has_statistics
+
+        if do_calc:
+            print("[Warning] Calculating statistics... It can take a long time depending on your CPU machine")
+            
+            if self.use_all_data:
+                image_paths = self.image_paths
+            else:
+                image_paths = random.sample(self.image_paths, 5000)
+            
             sums = []
             squared = []
-            for image_path in self.image_paths[:3000]:
+            for image_path in tqdm(image_paths):
                 image = np.array(Image.open(image_path)).astype(np.int32)
                 sums.append(image.mean(axis=(0, 1)))
                 squared.append((image**2).mean(axis=(0, 1)))
 
-            self.mean = np.mean(sums, axis=0) / 255
-            self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
+            if self.calc_mean or self.mean is None:
+                self.mean = np.mean(sums, axis=0) / 255
+            if self.calc_std or self.std is None:
+                self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
+
+            print("mean:", self.mean)
+            print("std", self.std)
