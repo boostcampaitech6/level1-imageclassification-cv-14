@@ -4,12 +4,13 @@ from albumentations.pytorch import ToTensorV2
 from base import BaseDataset
 
 class TrainDataset(BaseDataset):
-    def __init__(self, data_dir, calc_mean, calc_std, use_all_data):
-        super().__init__(data_dir, calc_mean=calc_mean, calc_std=calc_std, use_all_data=use_all_data)
+    def __init__(self, data_dir, do_calc, use_all_data):
+        super().__init__(data_dir, do_calc=do_calc, use_all_data=use_all_data)
 
         self.transform = A.Compose([
             A.CenterCrop(400, 300),  
             A.Resize(224, 224), 
+            A.HorizontalFlip(p=0.5),
             A.Normalize(self.mean, self.std),
             ToTensorV2()
         ])
