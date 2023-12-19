@@ -67,7 +67,7 @@ class MultiTaskTrainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
         
         if self.lr_scheduler is not None: 
-            self.lr_scheduler.step(val_log['loss']) # ReduceLROnPlateau
+            self.lr_scheduler.step(val_log['loss']) # <- ReduceLROnPlateau
 
         return log
 
