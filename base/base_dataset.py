@@ -116,5 +116,5 @@ class BaseDataset(Dataset):
             if self.calc_std or self.std is None:
                 self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
 
-            print("mean:", self.mean)
-            print("std", self.std)
+            print("mean: ", self.mean)
+            print("std: ", self.std)
