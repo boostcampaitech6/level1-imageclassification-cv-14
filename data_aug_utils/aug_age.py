@@ -5,10 +5,10 @@ import random
 import argparse
 import multiprocessing
 import numpy as np
-
 from rembg import remove
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
+SEED = 42
 
 class AugElder():
     def __init__(self, config):
@@ -130,7 +130,7 @@ class AugElder():
         img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
         return (img/2) + (origin/2)
 
-    def remove_back(self,img):
+    def rmback(self,img):
         # rembg
         img = remove(img)
         img = np.array(img)
@@ -150,14 +150,14 @@ class AugElder():
         return white_bg
 
 def main(config):
-    random.seed(42)
+    random.seed(SEED)
     aug_mask = AugElder(config['age'])
     aug_mask.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='data preprocessing')
-    args.add_argument('-c', '--config', default='/opt/workspace/week6/level1-imageclassification-cv-14/data_aug_utils/aug_config.json', type=str,
+    args.add_argument('-c', '--config', default='./data_aug_utils/aug_config.json', type=str,
                       help='config file path (default: None)')
 
     args = args.parse_args()

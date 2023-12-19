@@ -1,18 +1,15 @@
 {
     "mask": {
         "transforms": [
-            ["blur"],
-            ["clahe"],
-            ["jitter"],
-            ["blur", "clahe"]
+            ["remove_back"]
         ],
         "class":{
             "incorrect" : true,
-            "mask" : false,
+            "mask" : true,
             "normal" : true
         },
         "src_dir": "./data/train/images",
-        "dest_dir": "./data/train/aug_nomask"
+        "dest_dir": "./data/train/whiht_backs"
     },
     "age": {
         "transforms": [

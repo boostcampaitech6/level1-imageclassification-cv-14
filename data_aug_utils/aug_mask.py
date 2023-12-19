@@ -5,10 +5,10 @@ import random
 import argparse
 import multiprocessing
 import numpy as np
-
 from rembg import remove
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
+SEED = 42
 
 class AugNoMask():
     def __init__(self, config):
@@ -97,7 +97,7 @@ class AugNoMask():
     def flip(self, img):
         return cv2.flip(img, 1)
     
-    def remove_back(self, img):
+    def rmback(self, img):
         # rembg
         img = remove(img)
         img = np.array(img)
@@ -140,7 +140,7 @@ class AugNoMask():
 
 
 def main(config):
-    random.seed(42)
+    random.seed(SEED)
     aug_mask = AugNoMask(config['mask'])
     aug_mask.aug_data()
     print('Data augmentation completed.')
