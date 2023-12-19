@@ -4,14 +4,17 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 class TestDataset(Dataset):
-    def __init__(self, img_paths, resize, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246)):
+    def __init__(self, img_paths, resize, mean=(0.5607, 0.5253, 0.5027), std=(0.6174, 0.5885, 0.5695)):
         super().__init__()
 
         self.img_paths = img_paths
+        self.mean = mean
+        self.std = std
+
         self.transform = A.Compose([
             A.CenterCrop(400, 300),  
             A.Resize(resize, resize), 
-            A.Normalize(mean, std),
+            A.Normalize(self.mean, self.std),
             ToTensorV2()
         ])
 

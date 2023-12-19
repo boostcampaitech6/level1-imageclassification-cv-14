@@ -9,11 +9,10 @@
     "dataset": {
         "type": "TrainDataset",
         "args": {
-            "calc_mean": true,
-            "calc_std": true,
+            "do_calc": true,
             "use_all_data": false
         },
-        "data_dir": ["./data/train/images", "./data/train/images_elder", "./data/train/images_nomask_elder"]
+        "data_dir": ["./data/train/images"]
     },
     "train_loader": {
         "type": "BasicDataLoader",
@@ -51,7 +50,7 @@
         }
     },
     "trainer": {
-        "type": "MultiLabelTrainer",
+        "type": "MultiTaskTrainer",
         "args": {},
 
         "epochs": 50,
@@ -65,7 +64,7 @@
     },
     "k_splits": 5,
     "wandb": {
-        "exp_name": "MultiLabelB0Aug",
+        "exp_name": "exp_ViT",
         "exp_num": 1,
         "project_name": "Image_Classification",
         "entity": "cv-14"
