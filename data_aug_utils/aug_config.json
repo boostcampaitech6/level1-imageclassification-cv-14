@@ -1,6 +1,6 @@
 {
     "mask": {
-        "transform": [
+        "transforms": [
             ["blur"],
             ["clahe"],
             ["jitter"],
@@ -12,17 +12,12 @@
             "normal" : true
         },
         "src_dir": "./data/train/images",
-        "dest_dir": "./data/train/mydata"
+        "dest_dir": "./data/train/aug_nomask"
     },
     "age": {
-        "transform": [
+        "transforms": [
             ["blur","flip","jitter"],
             ["flip", "jitter"],
-            ["flip", "jitter"],
-            ["flip", "jitter"],
-            ["jitter"],
-            ["flip", "jitter"],
-            ["blur", "jitter"],
             ["flip", "jitter"],
             ["flip", "jitter"]
         ],
@@ -32,6 +27,6 @@
             "old" : true
         },
         "src_dir": "./data/train/images",
-        "dest_dir": "./data/train/aug_images"
+        "dest_dir": "./data/train/aug_elder"
     }
   }

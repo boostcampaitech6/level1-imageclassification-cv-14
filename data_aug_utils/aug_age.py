@@ -1,5 +1,6 @@
 import os
 import cv2
+import json
 import random
 import argparse
 import multiprocessing
@@ -7,23 +8,26 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
 class AugElder():
-    def __init__(self, src_dir):
-        self.src_dir = src_dir
+    def __init__(self, config):
+        self.src_dir = config["src_dir"]
+        self.dest_dir = config["dest_dir"]
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
-        self.brightness = 64
-        self.contrast = 64
+        self.brightness = 0
+        self.contrast = 0
 
-        # new id
-        self.new_id = 7000
-
-        # dir path init
-        self.src_dirs = []
-        self.dest_dirs = []
-
+        # files paths init
         self.src_files_paths = []
         self.dest_files_paths = []
+
+        # cate info
+        self.cate = config["class"]
+
+        # process tyoes
+        self.transforms = config["transforms"]
+
+        self.n_repeat = len(config["transforms"])
 
         # setup
         self.setup()
@@ -32,74 +36,59 @@ class AugElder():
         profiles = [p for p in os.listdir(self.src_dir) if not p.startswith('.')]
 
         for profile in profiles:
+            _, _, _, age = profile.split("_")
+
+            # unchosen cate
+            if ((not self.cate["young"]) and int(age) < 30) or\
+               ((not self.cate["midle"]) and (int(age) >= 30) and (int(age) < 60)) or\
+               ((not self.cate["old"]) and int(age) >= 60):
+                continue
+            
             src_profile_dir = os.path.join(self.src_dir, profile)
-            id, gender, race, age = profile.split("_")
+            dest_profile_dir = os.path.join(self.dest_dir, profile)
+            self.makefolder(dest_profile_dir)
 
-            if int(age)<60: continue
+            src_file_paths = []
+            dest_file_paths = []
 
-            self.handle_elder_profiles(src_profile_dir, gender, race, age)
+            for file_name in os.listdir(src_profile_dir):
+                _file_name, _ = os.path.splitext(file_name)
 
-        for i in range(len(self.src_dirs)):
-            for file_name in os.listdir(self.src_dirs[i]):
-                self.categorize_file(self.src_dirs[i], self.dest_dirs[i], file_name)
-
-    def handle_elder_profiles(self, src_dir, gender, race, age):
-        self.src_dirs.append(src_dir)
-        duplicated = []
-
-        for _ in range(5):
-            elder_id = str(self.new_id).zfill(6)
-            self.new_id += 1
-
-            dest_elder_profile = '_'.join([elder_id, gender, race, age])
-            dest_elder_dir = os.path.join(self.src_dir, dest_elder_profile)
-            self.makefolder(dest_elder_dir)
-            duplicated.append(dest_elder_dir)
-        self.dest_dirs.append(duplicated)
+                if not file_name.startswith('.'):
+                    src_file_paths.append(os.path.join(src_profile_dir, file_name))
+                    dest_file_paths.append(os.path.join(dest_profile_dir, _file_name))
+                
+            self.src_files_paths.append(src_file_paths)
+            self.dest_files_paths.append(dest_file_paths)
 
     def makefolder(self, new_dir_path):
         os.makedirs(new_dir_path, exist_ok = False)
     
-    def categorize_file(self, src_dir, dest_dirs, file_name):
-        _file_name, ext = os.path.splitext(file_name)
-        src_file_path = os.path.join(src_dir, file_name)
-        
-        dest_files_paths = []
-        for dest_dir in dest_dirs:
-            dest_files_paths.append(os.path.join(dest_dir,_file_name))
-        
-        self.src_files_paths.append(src_file_path)
-        self.dest_files_paths.append(dest_files_paths)
-
     def aug_data(self):
-        process_types = [['blur','flip','jitter'], ['flip','jitter'], ['jitter'], ['blur', 'jitter'], ['flip', 'jitter']]
-        b_list = [b for b in range(0,65,13)]
-        c_list = [c for c in range(0,65,13)]
-        b_c_comb = [(b,c) for b in b_list for c in c_list]
-        b_c_comb = random.sample(b_c_comb, 5)
+        b_c_comb = [(b,c) for b in list(range(0, 65, 13)) for c in list(range(0, 65, 13))]
+        b_c_comb = random.sample(b_c_comb, self.n_repeat)
 
-        tasks = [[],[],[]]
-        for i in range(len(self.src_files_paths)):
-            src_file_path = self.src_files_paths[i]
-            dest_files_path = self.dest_files_paths[i]
+        for idx, funcs in enumerate(self.transforms):
+            b, c = b_c_comb[idx]
+            self.brightness, self.contrast = b, c
+            suffix = '_'.join(funcs) + f'_b{b}_c{c}' if 'jitter' in funcs else '_'.join(funcs)
+
+            src_files_paths = []
+            mod_dest_files_paths = []
+
+            # searching inside profile
+            for src_file_paths, dest_file_paths in zip(self.src_files_paths, self.dest_files_paths):
+                src_img_paths = [p for p in src_file_paths]               
+                mod_dest_img_paths = [p + f'_{suffix}.jpg' for p in dest_file_paths]
             
-            for j in range(5):
-                funcs = process_types[j]
-                b, c = b_c_comb[j]
-                dest_file_path = dest_files_path[j]
-                self.brightness = b
-                self.contrast = c
-                suffix = '_' + '_'.join(funcs) + f'_b{b}_c{c}.jpg'
-                dest_file_path += suffix
-                tasks[0].append(src_file_path)
-                tasks[1].append(dest_file_path)
-                tasks[2].append(funcs)
+                src_files_paths.extend(src_img_paths)
+                mod_dest_files_paths.extend(mod_dest_img_paths)
+            
+            self.multiple_process(src_files_paths, mod_dest_files_paths, [funcs]*len(src_files_paths))
 
-        self.multiple_process(tasks[0], tasks[1], tasks[2])
-
-    def multiple_process(self,src_list, dest_list, n_funcs):
+    def multiple_process(self, src_file_paths, dest_file_paths, n_funcs):
         with ProcessPoolExecutor(max_workers = self.n_cpu) as executor:
-            list(tqdm(executor.map(self.single_process, src_list, dest_list, n_funcs), total = len(src_list)))
+            list(tqdm(executor.map(self.single_process, src_file_paths, dest_file_paths, n_funcs), total = len(src_file_paths)))
 
     def single_process(self, src_img_path, dest_img_path, funcs):
         img = self.get_img(src_img_path)
@@ -130,15 +119,26 @@ class AugElder():
 
         return img
 
-def main(src_dir):
-    aug_data = AugElder(src_dir)
-    aug_data.aug_data()
+    def clahe(self, img):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # CLAHE 생성
+        img[:, :, 0] = clahe.apply(img[:, :, 0])        # 밝기 채널에 CLAHE 적용
+        img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
+        return img
+
+def main(config):
+    random.seed(42)
+    aug_mask = AugElder(config['age'])
+    aug_mask.aug_data()
     print('Data augmentation completed.')
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description = 'data preprocessing')
-    args.add_argument('-d', '--src_dir', default = './data/train/images_aug', type = str,
-                      help='data folder path (default: ./data/train)')
-    
+    args = argparse.ArgumentParser(description='data preprocessing')
+    args.add_argument('-c', '--config', default='/opt/workspace/week6/level1-imageclassification-cv-14/data_aug_utils/aug_config.json', type=str,
+                      help='config file path (default: None)')
+
     args = args.parse_args()
-    main(args.src_dir)
+    
+    with open(args.config, 'r') as f :
+        config = json.load(f)
+    main(config)
