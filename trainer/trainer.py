@@ -18,6 +18,7 @@ class Trainer(BaseTrainer):
         self.do_validation = self.valid_loader is not None
         self.lr_scheduler = lr_scheduler
         self.fold = fold
+        self.scaler = torch.cuda.amp.GradScaler()
 
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
@@ -36,13 +37,17 @@ class Trainer(BaseTrainer):
             self.train_loader, 
             desc="[Fold {} - Train Epoch {}]".format(self.fold, epoch)
         )):
-            data, target = data.to(self.device), target.to(self.device)
+            data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
-            self.optimizer.zero_grad()
-            output = self.model(data)
-            loss = self.criterion(output, target)
-            loss.backward()
-            self.optimizer.step()
+            self.optimizer.zero_grad(set_to_none=True)
+
+            with torch.cuda.amp.autocast():
+                output = self.model(data).logits
+                loss = self.criterion(output, target)
+            
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
 
             self.train_metrics.update('loss', loss.item())
             for met in self.metrics:
@@ -74,9 +79,9 @@ class Trainer(BaseTrainer):
                 self.valid_loader, 
                 desc="[Fold {} - Valid Epoch {}]".format(self.fold, epoch)
             )):
-                data, target = data.to(self.device), target.to(self.device)
+                data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
-                output = self.model(data)
+                output = self.model(data).logits
                 loss = self.criterion(output, target)
 
                 self.valid_metrics.update('loss', loss.item())
