@@ -4,7 +4,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 class TestDataset(Dataset):
-    def __init__(self, img_paths, resize, mean=(0.5607, 0.5253, 0.5027), std=(0.6174, 0.5885, 0.5695)):
+    def __init__(self, img_paths, resize, mean=(0.5601, 0.5241, 0.5014), std=(0.6166, 0.5871, 0.5682)):
         super().__init__()
 
         self.img_paths = img_paths
