@@ -4,6 +4,9 @@ import json
 import random
 import argparse
 import multiprocessing
+import numpy as np
+
+from rembg import remove
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
 
@@ -125,6 +128,25 @@ class AugElder():
         img[:, :, 0] = clahe.apply(img[:, :, 0])        # 밝기 채널에 CLAHE 적용
         img = cv2.cvtColor(img, cv2.COLOR_YUV2BGR)
         return img
+
+    def remove_back(img):
+        # rembg
+        img = remove(img)
+        img = np.array(img)
+
+        # white background
+        white_bg = np.ones((img.shape[0], img.shape[1], 3), dtype=np.uint8) * 255
+
+        # extract alpa
+        if img.shape[2] == 4:
+            alpha_channel = img[:, :, 3]
+            img = img[:, :, :3]
+
+            # Overlay the original image on a white background using an alpha channel
+            for c in range(0, 3):
+                white_bg[:, :, c] = white_bg[:, :, c] * (1 - alpha_channel / 255.0) + img[:, :, c] * (alpha_channel / 255.0)
+
+        return white_bg
 
 def main(config):
     random.seed(42)
