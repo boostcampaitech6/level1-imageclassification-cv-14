@@ -62,7 +62,7 @@ def main(config):
             output = []
             for _, data in enumerate(tqdm(test_loader)):
                 data = data.to(device)
-                _output = model(data)
+                _output = model(data).logits
                 output.extend(_output.cpu().numpy())
 
             if outputs is None:
