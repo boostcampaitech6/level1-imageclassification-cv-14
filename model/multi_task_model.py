@@ -3,7 +3,7 @@ from torchvision import models
 from transformers import ViTForImageClassification
 from base import BaseModel
 
-class MultiLabelEfficientB0(BaseModel):
+class MultiTaskEfficientB0(BaseModel):
     def __init__(self, num_classes=8):
         super().__init__()
         self.pretrained_model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)

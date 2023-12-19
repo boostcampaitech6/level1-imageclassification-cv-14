@@ -5,7 +5,7 @@ from base import BaseTrainer
 from utils import MetricTracker, encode_multi_class, decode_multi_class
 
 
-class MultiLabelTrainer(BaseTrainer):
+class MultiTaskTrainer(BaseTrainer):
     """
     Trainer class
     """
