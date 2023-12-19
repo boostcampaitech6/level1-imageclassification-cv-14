@@ -14,8 +14,8 @@ class AugNoMask():
         self.n_cpu = multiprocessing.cpu_count()
 
         # params
-        self.brightness = 0
-        self.contrast = 0
+        self.brightness = 60
+        self.contrast = 60
 
         # cate info
         self.cate = config["class"]
@@ -61,14 +61,15 @@ class AugNoMask():
         os.makedirs(new_dir_path, exist_ok=True)
 
     def aug_data(self):
-        b_c_comb = [(b,c) for b in list(range(0, 65, 13)) for c in list(range(0, 65, 13))]
-        b_c_comb = random.sample(b_c_comb, len(self.transforms))
+        # b_c_comb = [(b,c) for b in list(range(0, 65, 13)) for c in list(range(0, 65, 13))]
+        # b_c_comb = random.sample(b_c_comb, len(self.transforms))
         for src_file_paths, dest_file_paths, category in ([(self.src_mask_paths, self.dest_mask_paths, 'mask'),
                                                          (self.src_normal_paths, self.dest_normal_paths, 'normal'),
                                                          (self.src_incorrect_paths, self.dest_incorrect_paths, 'incorrect')]):
             for idx, funcs in enumerate(self.transforms):
-                b, c = b_c_comb[idx]
-                self.brightness, self.contrast = b, c
+                # b, c = b_c_comb[idx]
+                # self.brightness, self.contrast = b, c
+                b, c = self.brightness, self.contrast
                 suffix = '_'.join(funcs) + f'_b{b}_c{c}' if 'jitter' in funcs else '_'.join(funcs)
                 mod_dest_file_paths = [p + f'_{suffix}.jpg' for p in dest_file_paths]
                 self.multiple_process(src_file_paths, mod_dest_file_paths, [funcs] * len(src_file_paths))
