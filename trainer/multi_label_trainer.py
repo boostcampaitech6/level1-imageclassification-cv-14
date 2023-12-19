@@ -36,7 +36,7 @@ class MultiLabelTrainer(BaseTrainer):
             target_mask, target_gender, target_age = decode_multi_class(target)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
+            output = self.model(data).logits
 
             output_mask = output[:, :3]
             output_gender = output[:, 3:5]
@@ -45,7 +45,7 @@ class MultiLabelTrainer(BaseTrainer):
             loss_mask = self.criterion(output_mask, target_mask)
             loss_gender = self.criterion(output_gender, target_gender)
             loss_age = self.criterion(output_age, target_age)
-            loss = loss_mask + loss_gender + loss_age
+            loss = (loss_mask + loss_gender + loss_age)
 
             loss.backward()
             self.optimizer.step()
@@ -65,9 +65,9 @@ class MultiLabelTrainer(BaseTrainer):
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log.update(**{'val_'+k : v for k, v in val_log.items()})
-
-        if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+        
+        if self.lr_scheduler is not None: 
+            self.lr_scheduler.step(val_log['loss']) # ReduceLROnPlateau
 
         return log
 
@@ -84,7 +84,7 @@ class MultiLabelTrainer(BaseTrainer):
 
                 target_mask, target_gender, target_age = decode_multi_class(target)
 
-                output = self.model(data)
+                output = self.model(data).logits
 
                 output_mask = output[:, :3]
                 output_gender = output[:, 3:5]
