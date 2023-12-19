@@ -102,7 +102,8 @@ class BaseDataset(Dataset):
             if self.use_all_data:
                 image_paths = self.image_paths
             else:
-                image_paths = random.sample(self.image_paths, 5000)
+                n_sample = 5000 if len(self.image_paths) > 5000 else len(self.image_paths)
+                image_paths = random.sample(self.image_paths, n_sample)
             
             sums = []
             squared = []
