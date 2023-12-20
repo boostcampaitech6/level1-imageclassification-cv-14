@@ -84,6 +84,9 @@ class BaseTrainer:
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 
+            current_lr = self.optimizer.param_groups[0]['lr']
+            result.update({'current_lr': current_lr})
+
             # save logged informations into log dict
             log = {'fold': self.fold, 'epoch': epoch}
             log.update(result)
