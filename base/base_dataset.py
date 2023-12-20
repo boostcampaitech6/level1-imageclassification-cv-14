@@ -20,13 +20,15 @@ class BaseDataset(Dataset):
         "normal": MaskLabels.NORMAL,
     }
 
-    def __init__(self, data_dir, mean=(0.5601, 0.5241, 0.5014), std=(0.6166, 0.5871, 0.5682), 
-                 do_calc=False, use_all_data=False):
+    def __init__(self, data_dir, do_calc=False, use_all_data=False, logger=None,
+                 mean=(0.5601, 0.5241, 0.5014), std=(0.6166, 0.5871, 0.5682)):
         self.data_dir = data_dir
-        self.mean = mean
-        self.std = std
         self.do_calc = do_calc
         self.use_all_data = use_all_data
+        self.logger = logger
+
+        self.mean = mean
+        self.std = std
         
         self.image_paths = []
         self.mask_labels = []
@@ -57,7 +59,7 @@ class BaseDataset(Dataset):
                 img_path = os.path.join(self.data_dir, profile, file_name)
                 mask_label = self._file_names[_file_name]
 
-                id, gender, race, age = profile.split("_")
+                _, gender, _, age = profile.split("_")
                 gender_label = GenderLabels.from_str(gender)
                 age_label = AgeLabels.from_number(age)
 
@@ -109,5 +111,6 @@ class BaseDataset(Dataset):
         self.mean = np.mean(sums, axis=0) / 255
         self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
 
-        print("mean: ", self.mean)
-        print("std: ", self.std)
+        if self.logger is not None:
+            self.logger.info("mean: ", self.mean)
+            self.logger.info("std: ", self.std)
