@@ -9,16 +9,15 @@ class Trainer(BaseTrainer):
     """
     Trainer class
     """
-    def __init__(self, model, criterion, metrics, optimizer, config, fold,
-                 device, train_loader, valid_loader=None, lr_scheduler=None):
-        super().__init__(model, criterion, metrics, optimizer, config, fold)
+    def __init__(self, model, criterion, metrics, optimizer, config, device, 
+                 train_loader, valid_loader=None, lr_scheduler=None):
+        super().__init__(model, criterion, metrics, optimizer, config)
         self.config = config
         self.device = device
         self.train_loader = train_loader
         self.valid_loader = valid_loader
         self.do_validation = self.valid_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.fold = fold
         self.scaler = torch.cuda.amp.GradScaler()
 
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
@@ -34,9 +33,8 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
 
-        for batch_idx, (data, target) in enumerate(tqdm(
-            self.train_loader, 
-            desc="[Fold {} - Train Epoch {}]".format(self.fold, epoch)
+        for _, (data, target) in enumerate(tqdm(
+            self.train_loader, desc=f'[Train Epoch {epoch}]'
         )):
             data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
@@ -61,7 +59,7 @@ class Trainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
 
         if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+            self.lr_scheduler.step(val_log['loss'])
 
         return log
 
@@ -76,9 +74,8 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
 
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(tqdm(
-                self.valid_loader, 
-                desc="[Fold {} - Valid Epoch {}]".format(self.fold, epoch)
+            for _, (data, target) in enumerate(tqdm(
+                self.valid_loader, desc=f'[Valid Epoch {epoch}]'
             )):
                 data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
