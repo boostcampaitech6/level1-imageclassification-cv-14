@@ -6,13 +6,21 @@
         "type": "ViT",
         "args": {}
     },
-    "dataset": {
+    "train_set": {
         "type": "TrainDataset",
         "args": {
-            "do_calc": true,
+            "data_dir": "./data/split_train/images",
+            "do_calc": false,
             "use_all_data": false
-        },
-        "data_dir": ["./data/train/images"]
+        }
+    },
+    "valid_set": {
+        "type": "ValidDataset",
+        "args": {
+            "data_dir": "./data/split_valid/images",
+            "do_calc": false,
+            "use_all_data": false
+        }
     },
     "train_loader": {
         "type": "BasicDataLoader",
@@ -33,7 +41,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.001,
+            "lr": 1e-2,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -45,9 +53,9 @@
     "lr_scheduler": {
         "type": "ReduceLROnPlateau",
         "args": {
-            "mode":"min",
-            "patience":1,
-            "min_lr":2e-4
+            "mode": "min",
+            "patience": 5,
+            "min_lr": 1e-4
         }
     },
     "trainer": {
@@ -63,10 +71,9 @@
         "monitor": "min val_loss",
         "early_stop": 10
     },
-    "k_splits": 5,
     "wandb": {
-        "exp_name": "exp_ViT",
-        "exp_num": 1,
+        "exp_name": "EXP_NAME",
+        "exp_num": 0,
         "project_name": "Image_Classification",
         "entity": "cv-14"
     }
