@@ -70,6 +70,7 @@ class BaseTrainer:
         wandb.config.epoch = self.config['trainer']['epochs']
         wandb.config.loss = self.config['loss']
         wandb.config.optimizer = self.config['optimizer']['type']
+        wandb.config.init_lr = self.config['optimizer']['args']['lr']
         wandb.config.lr_scheduler = {
             'type': self.config['lr_scheduler']['type'],
             'mode': self.config['lr_scheduler']['args']['mode'],
