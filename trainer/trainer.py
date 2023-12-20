@@ -1,7 +1,6 @@
 import torch
-import wandb
 from base import BaseTrainer
-from utils import MetricTracker
+from utils import MetricTracker, decode_multi_class
 from tqdm import tqdm
 
 
@@ -37,6 +36,7 @@ class Trainer(BaseTrainer):
             self.train_loader, desc=f'[Train Epoch {epoch}]'
         )):
             data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
+            target_mask, target_gender, target_age = decode_multi_class(target)
 
             self.optimizer.zero_grad(set_to_none=True)
 
@@ -78,6 +78,7 @@ class Trainer(BaseTrainer):
                 self.valid_loader, desc=f'[Valid Epoch {epoch}]'
             )):
                 data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
+                target_mask, target_gender, target_age = decode_multi_class(target)
 
                 output = self.model(data).logits
                 loss = self.criterion(output, target)
