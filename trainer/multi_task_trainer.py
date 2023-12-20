@@ -19,6 +19,7 @@ class MultiTaskTrainer(BaseTrainer):
         self.do_validation = self.valid_loader is not None
         self.lr_scheduler = lr_scheduler
         self.fold = fold
+        self.scaler = torch.cuda.amp.GradScaler()
 
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
@@ -31,24 +32,27 @@ class MultiTaskTrainer(BaseTrainer):
             self.train_loader, 
             desc="[Fold {} - Train Epoch {}]".format(self.fold, epoch)
         )):
-            data, target = data.to(self.device), target.to(self.device)
+            data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
             target_mask, target_gender, target_age = decode_multi_class(target)
 
-            self.optimizer.zero_grad()
-            output = self.model(data).logits
+            self.optimizer.zero_grad(set_to_none=True)
 
-            output_mask = output[:, :3]
-            output_gender = output[:, 3:5]
-            output_age = output[:, 5:]
+            with torch.cuda.amp.autocast():
+                output = self.model(data).logits
 
-            loss_mask = self.criterion(output_mask, target_mask)
-            loss_gender = self.criterion(output_gender, target_gender)
-            loss_age = self.criterion(output_age, target_age)
-            loss = (loss_mask + loss_gender + loss_age)
+                output_mask = output[:, :3]
+                output_gender = output[:, 3:5]
+                output_age = output[:, 5:]
 
-            loss.backward()
-            self.optimizer.step()
+                loss_mask = self.criterion(output_mask, target_mask)
+                loss_gender = self.criterion(output_gender, target_gender)
+                loss_age = self.criterion(output_age, target_age)
+                loss = (loss_mask + loss_gender + loss_age)
+
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
 
             _, pred_mask = torch.max(output_mask, 1)
             _, pred_gender = torch.max(output_gender, 1)
@@ -80,7 +84,7 @@ class MultiTaskTrainer(BaseTrainer):
                 self.valid_loader, 
                 desc="[Fold {} - Valid Epoch {}]".format(self.fold, epoch)
             )):
-                data, target = data.to(self.device), target.to(self.device)
+                data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
                 target_mask, target_gender, target_age = decode_multi_class(target)
 
