@@ -71,7 +71,7 @@ class MultiTaskTrainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
         
         if self.lr_scheduler is not None: 
-            self.lr_scheduler.step(val_log['loss']) # <- ReduceLROnPlateau
+            self.lr_scheduler.step()
 
         return log
 
@@ -87,7 +87,7 @@ class MultiTaskTrainer(BaseTrainer):
                 data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 
                 target_mask, target_gender, target_age = decode_multi_class(target)
-
+        
                 output = self.model(data).logits
 
                 output_mask = output[:, :3]
