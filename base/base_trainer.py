@@ -72,9 +72,8 @@ class BaseTrainer:
         wandb.config.optimizer = self.config['optimizer']['type']
         wandb.config.lr_scheduler = {
             'type': self.config['lr_scheduler']['type'],
-            'mode': self.config['lr_scheduler']['args']['mode'],
-            'patience': self.config['lr_scheduler']['args']['patience'],
-            'min_lr': self.config['lr_scheduler']['args']['min_lr']
+            'step_size': self.config['lr_scheduler']['args']['step_size'],
+            'gamma': self.config['lr_scheduler']['args']['gamma']
         }
         wandb.watch(self.model)
 

@@ -10,7 +10,6 @@ class TrainDataset(BaseDataset):
         self.transform = A.Compose([
             A.CenterCrop(400, 300),  
             A.Resize(224, 224), 
-            A.HorizontalFlip(p=0.5),
             A.Normalize(self.mean, self.std),
             ToTensorV2()
         ])
