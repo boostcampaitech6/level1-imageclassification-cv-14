@@ -1,4 +1,5 @@
 import torch
+import wandb
 from base import BaseTrainer
 from utils import MetricTracker
 from tqdm import tqdm
@@ -61,6 +62,10 @@ class Trainer(BaseTrainer):
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
+        
+        current_lr = self.optimizer.param_groups[0]['lr']
+        self.logger.info(f'현재 학습률: {current_lr}')
+        wandb.log({'learning_rate': current_lr})
 
         return log
 
