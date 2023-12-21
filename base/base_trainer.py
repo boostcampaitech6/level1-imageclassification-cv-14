@@ -61,7 +61,7 @@ class BaseTrainer:
         """
         # wandb init
         wandb.init(
-            name=f'{self.exp_name}_{self.exp_num}_fold{self.fold}',
+            name=f'{self.exp_name}_{self.exp_num}',
             project=self.project_name,
             entity=self.entity
         )
@@ -87,7 +87,7 @@ class BaseTrainer:
             result.update({'current_lr': current_lr})
 
             # save logged informations into log dict
-            log = {'fold': self.fold, 'epoch': epoch}
+            log = {'epoch': epoch}
             log.update(result)
 
             # wandb logging
