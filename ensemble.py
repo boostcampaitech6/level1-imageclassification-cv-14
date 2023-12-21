@@ -46,7 +46,7 @@ def main(config):
     if is_multi_model_task:
         multi_outputs = [[], [], []]
         for idx, model_pth in enumerate(saved_models):
-            model_path = saved_path / model_pth
+            model_path = Path(saved_path) / model_pth
             checkpoint = torch.load(model_path)
 
             model_config = checkpoint['config']
@@ -75,7 +75,7 @@ def main(config):
     else:
         outputs = None
         for idx, model_pth in enumerate(saved_models):
-            model_path = saved_path / model_pth
+            model_path = Path(saved_path) / model_pth
             checkpoint = torch.load(model_path)
 
             model_config = checkpoint['config']

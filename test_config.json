@@ -11,7 +11,7 @@
         "is_multi_task": true
     },
     "multi_model": {
-        "saved_dir": "./saved/models/Ensemble",
+        "saved_dir": "./saved/models/Ensemble/1",
         "saved_models": [
             "mask_model_best.pth",
             "gender_model_best.pth",
