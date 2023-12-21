@@ -17,9 +17,7 @@
     "valid_set": {
         "type": "ValidDataset",
         "args": {
-            "data_dir": "./data/split_valid/images",
-            "do_calc": false,
-            "use_all_data": false
+            "data_dir": "./data/split_valid/images"
         }
     },
     "train_loader": {
