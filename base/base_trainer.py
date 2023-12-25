@@ -70,6 +70,7 @@ class BaseTrainer:
         wandb.config.epoch = self.config['trainer']['epochs']
         wandb.config.loss = self.config['loss']
         wandb.config.optimizer = self.config['optimizer']['type']
+        wandb.config.init_lr = self.config['optimizer']['args']['lr']
         wandb.config.lr_scheduler = {
             'type': self.config['lr_scheduler']['type'],
             'mode': self.config['lr_scheduler']['args']['mode'],
@@ -82,6 +83,9 @@ class BaseTrainer:
         best_result = {}
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
+
+            current_lr = self.optimizer.param_groups[0]['lr']
+            result.update({'current_lr': current_lr})
 
             # save logged informations into log dict
             log = {'fold': self.fold, 'epoch': epoch}

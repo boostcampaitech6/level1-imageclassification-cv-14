@@ -16,7 +16,7 @@ from utils import prepare_device, encode_multi_class
 
 
 # fix random seeds for reproducibility
-SEED = 42
+SEED = 951
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False

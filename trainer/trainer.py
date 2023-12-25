@@ -39,7 +39,7 @@ class Trainer(BaseTrainer):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
+            output = self.model(data).logits
             loss = self.criterion(output, target)
             loss.backward()
             self.optimizer.step()
@@ -55,8 +55,8 @@ class Trainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
 
         if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
-
+            self.lr_scheduler.step(val_log['loss'])
+        
         return log
 
     def _valid_epoch(self, epoch):
@@ -76,7 +76,7 @@ class Trainer(BaseTrainer):
             )):
                 data, target = data.to(self.device), target.to(self.device)
 
-                output = self.model(data)
+                output = self.model(data).logits
                 loss = self.criterion(output, target)
 
                 self.valid_metrics.update('loss', loss.item())
