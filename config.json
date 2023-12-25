@@ -13,7 +13,7 @@
             "calc_std": true,
             "use_all_data": false
         },
-        "data_dir": ["./data/train/images", "./data/train/images_elder", "./data/train/images_nomask_elder"]
+        "data_dir": ["./data/train/images_aug"]
     },
     "train_loader": {
         "type": "BasicDataLoader",
@@ -34,7 +34,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.001,
+            "lr": 1e-2,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -46,13 +46,13 @@
     "lr_scheduler": {
         "type": "ReduceLROnPlateau",
         "args": {
-            "mode":"min",
-            "patience":1,
-            "min_lr":2e-4
+            "mode": "min",
+            "patience": 5,
+            "min_lr": 1e-4
         }
     },
     "trainer": {
-        "type": "MultiLabelTrainer",
+        "type": "MultiTaskTrainer",
         "args": {},
 
         "epochs": 50,
@@ -66,8 +66,8 @@
     },
     "k_splits": 5,
     "wandb": {
-        "exp_name": "MultiLabelB0Aug",
-        "exp_num": 1,
+        "exp_name": "modeling_test",
+        "exp_num": 0,
         "project_name": "Image_Classification",
         "entity": "cv-14"
     }

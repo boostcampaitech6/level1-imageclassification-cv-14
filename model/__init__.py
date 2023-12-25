@@ -1,2 +1,2 @@
 from .model import *
-from .multi_label_model import *
+from .multi_task_model import *
