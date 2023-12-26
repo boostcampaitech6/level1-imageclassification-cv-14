@@ -9,11 +9,16 @@
     "train_set": {
         "type": "TrainDataset",
         "args": {
-            "calc_mean": false,
-            "calc_std": false,
+            "data_dir": "./data/split_train/images",
+            "do_calc": false,
             "use_all_data": false
-        },
-        "data_dir": ["./data/train/images_aug"]
+        }
+    },
+    "valid_set": {
+        "type": "ValidDataset",
+        "args": {
+            "data_dir": "./data/split_valid/images"
+        }
     },
     "train_loader": {
         "type": "BasicDataLoader",
