@@ -9,7 +9,7 @@
     "train_set": {
         "type": "TrainDataset",
         "args": {
-            "data_dir": "./data/split_train/images",
+            "data_dir": "./data/train/images_aug",
             "do_calc": false,
             "use_all_data": false
         }
