@@ -45,6 +45,7 @@ def main(config):
 
     if is_multi_model_task:
         multi_outputs = [[], [], []]
+        num_classes = [3,2,3] # mask, gender, age
         for idx, model_pth in enumerate(saved_models):
             model_path = Path(saved_path) / model_pth
             checkpoint = torch.load(model_path)
@@ -52,7 +53,7 @@ def main(config):
             model_config = checkpoint['config']
             state_dict = checkpoint['state_dict']
 
-            model = model_config.init_obj('arch', module_arch)
+            model = model_config.init_obj('arch', module_arch, num_classes=num_classes[idx])
             model.load_state_dict(state_dict)
 
             model = model.to(device)
