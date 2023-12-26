@@ -91,19 +91,19 @@ def label_smoothing_loss(outputs, targets):
     return LabelSmoothingLoss()(outputs, targets)
 
 def f1_focal_loss(outputs, targets):
-    return  1/2*F1Loss()(outputs, targets) + 1/2*FocalLoss()(outputs, targets)
+    return  0.5*F1Loss()(outputs, targets) + 0.5*FocalLoss()(outputs, targets)
 
 def f1_label_loss(outputs, targets):
-    return  1/2*F1Loss()(outputs, targets) + 1/2*LabelSmoothingLoss()(outputs, targets)
+    return  0.5*F1Loss()(outputs, targets) + 0.5*LabelSmoothingLoss()(outputs, targets)
 
 def f1_cross_loss(outputs, targets):
-    return  1/2*F1Loss()(outputs, targets) + 1/2*F.cross_entropy(outputs, targets)
+    return  0.5*F1Loss()(outputs, targets) + 0.5*F.cross_entropy(outputs, targets)
 
 def focal_cross_loss(outputs, targets):
-    return  1/2*FocalLoss()(outputs, targets) + 1/2*F.cross_entropy(outputs, targets)
+    return  0.5*FocalLoss()(outputs, targets) + 0.5*F.cross_entropy(outputs, targets)
 
 def focal_label_loss(outputs, targets):
-    return  1/2*FocalLoss()(outputs, targets) + 1/2*LabelSmoothingLoss()(outputs, targets)
+    return  0.5*FocalLoss()(outputs, targets) + 0.5*LabelSmoothingLoss()(outputs, targets)
 
 def label_cross_loss(outputs, targets):
-    return 1/2*LabelSmoothingLoss()(outputs, targets) + 1/2*F.cross_entropy(outputs, targets)
+    return 0.5*LabelSmoothingLoss()(outputs, targets) + 0.5*F.cross_entropy(outputs, targets)
