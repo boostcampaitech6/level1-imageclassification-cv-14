@@ -3,9 +3,9 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from base import BaseDataset
 
-class TrainDataset(BaseDataset):
-    def __init__(self, data_dir, do_calc=False, use_all_data=False, logger=None):
-        super().__init__(data_dir, do_calc=do_calc, use_all_data=use_all_data, logger=logger)
+class ValidDataset(BaseDataset):
+    def __init__(self, data_dir):
+        super().__init__(data_dir)
 
         self.transform = A.Compose([
             A.CenterCrop(400, 300),  

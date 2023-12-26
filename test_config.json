@@ -3,19 +3,23 @@
     "info_path": "./data/eval/info.csv",
     "output_path": "./data/submission.csv",
     "resize": 224,
-    "resume": {
+    "single_model": {
         "saved_dir": "./saved/models/Image_Classification",
-        "saved_exp_name": "exp_name",
+        "saved_exp_name": "EXP_NAME",
         "saved_exp_num": 0,
-        "saved_models": [
-            "model_best_fold1.pth",
-            "model_best_fold2.pth",
-            "model_best_fold3.pth",
-            "model_best_fold4.pth",
-            "model_best_fold5.pth"
-        ]
+        "saved_model": "model_best.pth",
+        "is_multi_task": true
     },
-    "mode": "mean",
-    "weights": [],
-    "out_features": 8
+    "multi_model": {
+        "saved_dir": "./saved/models/Ensemble/1",
+        "saved_models": [
+            "mask_model_best.pth",
+            "gender_model_best.pth",
+            "age_model_best.pth"
+        ],
+        "is_multi_model_task": true,
+        "out_features": 8,
+        "mode": "mean",
+        "weights": []
+    }
 }

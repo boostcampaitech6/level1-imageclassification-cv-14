@@ -20,14 +20,15 @@ class BaseDataset(Dataset):
         "normal": MaskLabels.NORMAL,
     }
 
-    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), 
-                 calc_mean=False, calc_std=False, use_all_data=False):
+    def __init__(self, data_dir, do_calc=False, use_all_data=False, logger=None,
+                 mean=(0.5601, 0.5241, 0.5014), std=(0.6166, 0.5871, 0.5682)):
         self.data_dir = data_dir
+        self.do_calc = do_calc
+        self.use_all_data = use_all_data
+        self.logger = logger
+
         self.mean = mean
         self.std = std
-        self.calc_mean = calc_mean
-        self.calc_std = calc_std
-        self.use_all_data = use_all_data
         
         self.image_paths = []
         self.mask_labels = []
@@ -35,7 +36,9 @@ class BaseDataset(Dataset):
         self.age_labels = []
 
         self.setup()
-        self.calc_statistics()
+
+        if do_calc:
+            self.calc_statistics()
 
     def setup(self):
         profiles = os.listdir(self.data_dir)
@@ -56,7 +59,7 @@ class BaseDataset(Dataset):
                 img_path = os.path.join(self.data_dir, profile, file_name)
                 mask_label = self._file_names[_file_name]
 
-                id, gender, race, age = profile.split("_")
+                _, gender, _, age = profile.split("_")
                 gender_label = GenderLabels.from_str(gender)
                 age_label = AgeLabels.from_number(age)
 
@@ -90,32 +93,24 @@ class BaseDataset(Dataset):
         return self.age_labels[index]
 
     def calc_statistics(self):
-        has_statistics = self.mean is not None and self.std is not None
-        do_calc = self.calc_mean or self.calc_std
+        print("[Warning] Calculating statistics... It can take a long time depending on your CPU machine")
         
-        if not do_calc:
-            assert has_statistics
+        if self.use_all_data:
+            image_paths = self.image_paths
+        else:
+            n_sample = 5000 if len(self.image_paths) > 5000 else len(self.image_paths)
+            image_paths = random.sample(self.image_paths, n_sample)
+        
+        sums = []
+        squared = []
+        for image_path in tqdm(image_paths):
+            image = np.array(Image.open(image_path)).astype(np.int32)
+            sums.append(image.mean(axis=(0, 1)))
+            squared.append((image**2).mean(axis=(0, 1)))
 
-        if do_calc:
-            print("[Warning] Calculating statistics... It can take a long time depending on your CPU machine")
-            
-            if self.use_all_data:
-                image_paths = self.image_paths
-            else:
-                n_sample = 5000 if len(self.image_paths) > 5000 else len(self.image_paths)
-                image_paths = random.sample(self.image_paths, n_sample)
-            
-            sums = []
-            squared = []
-            for image_path in tqdm(image_paths):
-                image = np.array(Image.open(image_path)).astype(np.int32)
-                sums.append(image.mean(axis=(0, 1)))
-                squared.append((image**2).mean(axis=(0, 1)))
+        self.mean = np.mean(sums, axis=0) / 255
+        self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
 
-            if self.calc_mean or self.mean is None:
-                self.mean = np.mean(sums, axis=0) / 255
-            if self.calc_std or self.std is None:
-                self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
-
-            print("mean: ", self.mean)
-            print("std: ", self.std)
+        if self.logger is not None:
+            self.logger.info("mean: ", self.mean)
+            self.logger.info("std: ", self.std)

@@ -1,5 +1,4 @@
 import torch
-# from sklearn.metrics import f1_score
 from sklearn.metrics import f1_score as calcualte_f1_score
 
 
@@ -26,5 +25,4 @@ def f1_score(output, target):
     with torch.no_grad():
         pred = torch.argmax(output, dim=1)
         assert pred.shape[0] == len(target) 
-        a=calcualte_f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')
     return calcualte_f1_score(target.cpu().numpy(), pred.cpu().numpy(), average='macro')

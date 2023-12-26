@@ -6,7 +6,7 @@
         "type": "ViT",
         "args": {}
     },
-    "dataset": {
+    "train_set": {
         "type": "TrainDataset",
         "args": {
             "calc_mean": false,
@@ -52,7 +52,7 @@
         }
     },
     "trainer": {
-        "type": "OneTaskTrainer",
+        "type": "MultiLabelTrainer",
         "args": {},
 
         "epochs": 50,
@@ -64,10 +64,9 @@
         "monitor": "min val_loss",
         "early_stop": 10
     },
-    "k_splits": 5,
     "wandb": {
-        "exp_name": "modeling_test",
-        "exp_num": 0,
+        "exp_name": "MultiLabelB0Aug",
+        "exp_num": 1,
         "project_name": "Image_Classification",
         "entity": "cv-14"
     }

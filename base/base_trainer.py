@@ -8,13 +8,12 @@ class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model, criterion, metrics, optimizer, config, fold):
+    def __init__(self, model, criterion, metrics, optimizer, config):
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
         self.optimizer = optimizer
         self.config = config
-        self.fold = fold
 
         self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
         self.epochs = config['trainer']['epochs']
@@ -62,7 +61,7 @@ class BaseTrainer:
         """
         # wandb init
         wandb.init(
-            name=f'{self.exp_name}_{self.exp_num}_fold{self.fold}',
+            name=f'{self.exp_name}_{self.exp_num}',
             project=self.project_name,
             entity=self.entity
         )
@@ -80,7 +79,7 @@ class BaseTrainer:
         wandb.watch(self.model)
 
         not_improved_count = 0
-        best_result = {}
+
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
 
@@ -88,7 +87,7 @@ class BaseTrainer:
             result.update({'current_lr': current_lr})
 
             # save logged informations into log dict
-            log = {'fold': self.fold, 'epoch': epoch}
+            log = {'epoch': epoch}
             log.update(result)
 
             # wandb logging
@@ -112,8 +111,7 @@ class BaseTrainer:
 
                 if improved:
                     self.mnt_best = log[self.mnt_metric]
-                    self._save_best_checkpoint(self.fold, epoch, result)
-                    best_result = log
+                    self._save_best_checkpoint(epoch)
                     not_improved_count = 0
                 else:
                     not_improved_count += 1
@@ -126,9 +124,8 @@ class BaseTrainer:
             self.logger.info("-" * 60)
 
         wandb.finish()
-        return best_result
 
-    def _save_best_checkpoint(self, fold, epoch, result):
+    def _save_best_checkpoint(self, epoch):
         """
         Saving best checkpoints
         """
@@ -139,13 +136,12 @@ class BaseTrainer:
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
-            'log': result,
             'config': self.config
         }
 
-        best_path = str(self.checkpoint_dir / 'model_best_fold{}.pth'.format(fold))
+        best_path = str(self.checkpoint_dir / 'model_best.pth')
         torch.save(state, best_path)
-        self.logger.info('Saving current best: model_best_fold{}.pth ...'.format(fold))
+        self.logger.info('Saving current best: model_best.pth ...')
 
     def _resume_checkpoint(self, resume_path):
         """
