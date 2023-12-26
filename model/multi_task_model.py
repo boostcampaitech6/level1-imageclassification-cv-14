@@ -17,7 +17,7 @@ class MultiTaskEfficientB0(BaseModel):
         return self.pretrained_model(x)
     
 class ViT(BaseModel):
-    def __init__(self, num_classes=8):
+    def __init__(self, num_classes=3):
         super().__init__()
         self.pretrained_model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
 

@@ -9,8 +9,8 @@
     "dataset": {
         "type": "TrainDataset",
         "args": {
-            "calc_mean": true,
-            "calc_std": true,
+            "calc_mean": false,
+            "calc_std": false,
             "use_all_data": false
         },
         "data_dir": ["./data/train/images_aug"]
@@ -52,7 +52,7 @@
         }
     },
     "trainer": {
-        "type": "MultiTaskTrainer",
+        "type": "OneTaskTrainer",
         "args": {},
 
         "epochs": 50,

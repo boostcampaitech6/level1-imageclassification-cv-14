@@ -91,6 +91,14 @@ def decode_multi_class(multi_class_label) -> Tuple[MaskLabels, GenderLabels, Age
     age_label = multi_class_label % 3
     return mask_label, gender_label, age_label
 
+def encode_one_class(multi_class_label, task) -> int:
+    """18 classes -> 3 or 2 or 3 classes"""
+    if task == "mask":
+        return torch.div(multi_class_label, 6, rounding_mode='floor')
+    elif task == "gender":
+        return torch.div(multi_class_label, 3, rounding_mode='floor') % 2
+    elif task == "age":
+        return multi_class_label % 3
 
 def denormalize_image(image, mean, std):
     """정규화된 이미지를 원래대로 되돌리는 메서드"""
