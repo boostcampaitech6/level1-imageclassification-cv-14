@@ -57,7 +57,7 @@
         }
     },
     "trainer": {
-        "type": "MultiLabelTrainer",
+        "type": "MultiTaskTrainer",
         "args": {},
 
         "epochs": 50,
@@ -70,8 +70,8 @@
         "early_stop": 10
     },
     "wandb": {
-        "exp_name": "MultiLabelB0Aug",
-        "exp_num": 1,
+        "exp_name": "EXP_NAME",
+        "exp_num": 0,
         "project_name": "Image_Classification",
         "entity": "cv-14"
     }
