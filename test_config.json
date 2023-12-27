@@ -17,9 +17,7 @@
             "gender_model_best.pth",
             "age_model_best.pth"
         ],
-        "is_multi_model_task": true,
-        "out_features": 8,
-        "mode": "mean",
-        "weights": []
+        "is_multi_task": true,
+        "is_deep_model": true
     }
 }
