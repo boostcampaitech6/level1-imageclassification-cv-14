@@ -112,5 +112,5 @@ class BaseDataset(Dataset):
         self.std = (np.mean(squared, axis=0) - self.mean**2) ** 0.5 / 255
 
         if self.logger is not None:
-            self.logger.info("mean: ", self.mean)
-            self.logger.info("std: ", self.std)
+            self.logger.info(f'mean: {self.mean}')
+            self.logger.info(f'std: {self.std}')
