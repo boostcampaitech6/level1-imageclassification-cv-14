@@ -15,8 +15,8 @@ def main(config):
 
     model_path = Path(config['single_model']['saved_dir']) / \
                     config['single_model']['saved_exp_name'] / \
-                    str(config['single_model']['saved_exp_num'] / \
-                    config['single_model']['saved_model'])
+                    str(config['single_model']['saved_exp_num']) / \
+                    config['single_model']['saved_model']
 
     is_multi_task = config['single_model']['is_multi_task']
     
@@ -43,6 +43,8 @@ def main(config):
             data = data.to(device)
             _output = model(data).logits
             output.extend(_output.cpu().numpy())
+            
+    output = np.array(output)
 
     if is_multi_task:
         pred_mask = np.argmax(output[:, :3], 1)

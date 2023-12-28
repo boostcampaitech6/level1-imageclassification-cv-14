@@ -8,12 +8,13 @@ class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model, criterion, metrics, optimizer, config):
+    def __init__(self, model, criterion, metrics, optimizer, config, fold=None):
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
         self.optimizer = optimizer
         self.config = config
+        self.fold = fold
 
         self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
         self.epochs = config['trainer']['epochs']
@@ -60,8 +61,9 @@ class BaseTrainer:
         Full training logic
         """
         # wandb init
+        wandb_name = f'{self.exp_name}_{self.exp_num}' if self.fold is None else f'{self.exp_name}_{self.exp_num}_fold{self.fold}'
         wandb.init(
-            name=f'{self.exp_name}_{self.exp_num}',
+            name=wandb_name,
             project=self.project_name,
             entity=self.entity
         )
@@ -87,7 +89,10 @@ class BaseTrainer:
             result.update({'current_lr': current_lr})
 
             # save logged informations into log dict
-            log = {'epoch': epoch}
+            if self.fold is None:
+                log = {'epoch': epoch}
+            else:
+                log = {'fold': self.fold, 'epoch': epoch}
             log.update(result)
 
             # wandb logging
@@ -139,9 +144,14 @@ class BaseTrainer:
             'config': self.config
         }
 
-        best_path = str(self.checkpoint_dir / 'model_best.pth')
+        if self.fold is None:
+            best_path = str(self.checkpoint_dir / 'model_best.pth')
+        else:
+            best_path = str(self.checkpoint_dir / f'model_best_fold{self.fold}.pth')
+        
         torch.save(state, best_path)
         self.logger.info('Saving current best: model_best.pth ...')
+
 
     def _resume_checkpoint(self, resume_path):
         """

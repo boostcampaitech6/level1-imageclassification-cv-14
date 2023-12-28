@@ -16,36 +16,19 @@ def main(config):
     saved_models = config['multi_model']['saved_models']
     saved_path = config['multi_model']['saved_dir']
 
-
     info = pd.read_csv(config['info_path'])
     img_paths = [Path(config['image_path']) / img_id for img_id in info.ImageID]
 
     test_set = TestDataset(img_paths, config['resize'])
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=128, shuffle=False, num_workers=4)
 
-    n_ensemble = len(saved_models)
-    mode = config['multi_model']['mode']
-    out_features = config['multi_model']['out_features']
-    is_multi_model_task = config['multi_model']['is_multi_model_task']   
+    is_multi_task = config['multi_model']['is_multi_task']
+    is_deep_model = config['multi_model']['is_deep_model']
 
-    if mode == "mean":
-        weights = [1 for _ in range(n_ensemble)]
-    elif mode == "weighted":
-        weights = config['weights']
-        assert len(weights) == n_ensemble
-    else:
-        assert False
+    if is_deep_model:
+        outputs = [[], [], []]
+        num_classes = [3, 2, 3] # mask, gender, age
 
-    if out_features == 8:
-        is_multi_task = True
-    elif out_features == 18:
-        is_multi_task = False
-    else:
-        assert False
-
-    if is_multi_model_task:
-        multi_outputs = [[], [], []]
-        num_classes = [3,2,3] # mask, gender, age
         for idx, model_pth in enumerate(saved_models):
             model_path = Path(saved_path) / model_pth
             checkpoint = torch.load(model_path)
@@ -66,15 +49,16 @@ def main(config):
                     _output = model(data).logits
                     output.extend(_output.cpu().numpy())
 
-            multi_outputs[idx] = np.array(output) * weights[idx]
+            outputs[idx] = np.array(output)
 
-        pred_mask = np.argmax(multi_outputs[0], 1)
-        pred_gender = np.argmax(multi_outputs[1], 1)
-        pred_age = np.argmax(multi_outputs[2], 1)
+        pred_mask = np.argmax(outputs[0], 1)
+        pred_gender = np.argmax(outputs[1], 1)
+        pred_age = np.argmax(outputs[2], 1)
         preds = encode_multi_class(pred_mask, pred_gender, pred_age)
 
     else:
         outputs = None
+
         for idx, model_pth in enumerate(saved_models):
             model_path = Path(saved_path) / model_pth
             checkpoint = torch.load(model_path)
@@ -95,10 +79,10 @@ def main(config):
                     _output = model(data).logits
                     output.extend(_output.cpu().numpy())
 
-                if outputs is None:
-                    outputs = np.array(output) * weights[idx]
-                else:
-                    outputs += np.array(output) * weights[idx]
+            if outputs is None:
+                outputs = np.array(output)
+            else:
+                outputs += np.array(output)
 
         if is_multi_task:
             pred_mask = np.argmax(outputs[:, :3], 1)

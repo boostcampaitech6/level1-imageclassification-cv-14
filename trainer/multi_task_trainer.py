@@ -10,8 +10,8 @@ class MultiTaskTrainer(BaseTrainer):
     Trainer class
     """
     def __init__(self, model, criterion, metrics, optimizer, config, device, 
-                 train_loader, valid_loader=None, lr_scheduler=None):
-        super().__init__(model, criterion, metrics, optimizer, config)
+                 train_loader, valid_loader=None, lr_scheduler=None, fold=None):
+        super().__init__(model, criterion, metrics, optimizer, config, fold)
         self.config = config
         self.device = device
         self.train_loader = train_loader
@@ -24,6 +24,12 @@ class MultiTaskTrainer(BaseTrainer):
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
 
     def _train_epoch(self, epoch):
+        """
+        Training logic for an epoch
+
+        :param epoch: Integer, current training epoch.
+        :return: A log that contains average loss and metric in this epoch.
+        """
         self.model.train()
         self.train_metrics.reset()
 
@@ -68,11 +74,17 @@ class MultiTaskTrainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
         
         if self.lr_scheduler is not None: 
-            self.lr_scheduler.step(val_log['loss']) # <- ReduceLROnPlateau
+            self.lr_scheduler.step(val_log['loss'])
 
         return log
 
     def _valid_epoch(self, epoch):
+        """
+        Validate after training an epoch
+
+        :param epoch: Integer, current training epoch.
+        :return: A log that contains information about validation
+        """
         self.model.eval()
         self.valid_metrics.reset()
 

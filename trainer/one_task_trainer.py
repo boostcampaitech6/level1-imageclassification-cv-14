@@ -4,12 +4,13 @@ from utils import MetricTracker
 from tqdm import tqdm
 from utils import encode_one_class
 
+
 class OneTaskTrainer(BaseTrainer):
     """
     Trainer class
     """
-    def __init__(self, model, criterion, metrics, optimizer, config, fold,
-                 device, train_loader, valid_loader=None, lr_scheduler=None):
+    def __init__(self, model, criterion, metrics, optimizer, config, device, 
+                 train_loader, valid_loader=None, lr_scheduler=None, fold=None):
         super().__init__(model, criterion, metrics, optimizer, config, fold)
         self.config = config
         self.device = device
@@ -17,7 +18,6 @@ class OneTaskTrainer(BaseTrainer):
         self.valid_loader = valid_loader
         self.do_validation = self.valid_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.fold = fold
         self.scaler = torch.cuda.amp.GradScaler()
 
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metrics])
@@ -33,9 +33,8 @@ class OneTaskTrainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
 
-        for batch_idx, (data, target) in enumerate(tqdm(
-            self.train_loader, 
-            desc="[Fold {} - Train Epoch {}]".format(self.fold, epoch)
+        for _, (data, target) in enumerate(tqdm(
+            self.train_loader, desc=f'[Train Epoch {epoch}]'
         )):
             data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
             target = encode_one_class(target, "age") # task : mask/gender/age
@@ -76,9 +75,8 @@ class OneTaskTrainer(BaseTrainer):
         self.valid_metrics.reset()
 
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(tqdm(
-                self.valid_loader, 
-                desc="[Fold {} - Valid Epoch {}]".format(self.fold, epoch)
+            for _, (data, target) in enumerate(tqdm(
+                self.valid_loader, desc=f'[Valid Epoch {epoch}]'
             )):
                 data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
 

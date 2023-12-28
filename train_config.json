@@ -9,10 +9,12 @@
     "train_set": {
         "type": "TrainDataset",
         "args": {
-            "data_dir": "./data/train/images_aug",
+            "data_dir": "./data/train/images",
             "do_calc": false,
             "use_all_data": false
-        }
+        },
+        "use_kfold": true,
+        "k_splits": 5
     },
     "valid_set": {
         "type": "ValidDataset",
