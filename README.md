@@ -37,13 +37,13 @@ ${level1-imageclassification-cv-14}
 |
 |-- train.py - main script to start training
 |
-|-- ensemble.py - script for combining multiple models to improve performance
+|-- ensemble.py - script to run multiple models for making predictions
 |
 |-- inference.py - script to run the model for making predictions
 |
 |-- parse_config.py - class to handle config file and cli options
 |
-|-- test_config.json - holds the configuration for inference.
+|-- test_config.json - holds the configuration for inference
 |
 |-- train_config.json - holds configuration for training
 |
@@ -52,6 +52,7 @@ ${level1-imageclassification-cv-14}
 |-- README.md
 |
 |-- base - abstract base classes
+|   |-- __init __.py
 |   |-- base_dataset.py
 |   |-- base_model.py
 |   └── base_trainer.py
@@ -64,12 +65,14 @@ ${level1-imageclassification-cv-14}
 |   └── rm_back.py
 |
 |-- data_loader - anything about data loading goes here
+|   |-- __init __.py
 |   |-- data_loader.py
 |   |-- test_dataset.py
 |   |-- train_dataset.py
 |   └── valid_dataset.py
 |
 |-- model - models, losses, and metrics
+|   |-- __init __.py
 |   |-- loss.py
 |   |-- metric.py
 |   |-- model.py
@@ -77,17 +80,18 @@ ${level1-imageclassification-cv-14}
 |
 |-- trainer - trainers
 |   |-- __init__.py
-|   |-- __pycache__
 |   |-- multi_task_trainer.py
 |   |-- one_task_trainer.py
 |   └── trainer.py
 |
 |-- utils  - small utility functions
+|   |-- __init __.py
 |   |-- copy_files.py
 |   |-- data_util.py
 |   └── util.py
 |
 |-- logger - module for tensorboard visualization and logging
+|   |-- __init __.py
 |   |-- logger.py
 |   └── logger_config.json
 |
@@ -206,7 +210,7 @@ ${level1-imageclassification-cv-14}
     ```
     python ensemble.py -c test_config.json
     ```
-  - test_train.json
+  - test_config.json
     ```
     {
       "image_path": "TEST_SET_DIR",
@@ -230,37 +234,3 @@ ${level1-imageclassification-cv-14}
       }
     }
     ```
- - kfold train
-   - train_config.json에 인자 추가
-     ```
-     "train_set": {
-        ...
-        },
-        "use_kfold": true,
-        "k_splits": 5
-      },
-     ```
-    - test_train.json에 인자 추가
-      ```
-      "multi_model": {
-            ...
-            ],   
-            "is_multi_task": true, - output features가 8개인지 18개인지를 확인하는 변수
-            "is_deep_model": true  - 각 task가 다른 모델로 학습하는 지를 확인하는 변수
-        }
-      }
-      ```
-
-   
- - Visualization Result
-   - wandb
-  
-     train_config.json
-     ```
-     "wandb": {
-        "exp_name": "EXP_NAME",
-        "exp_num": 0,
-        "project_name": "Image_Classification",
-        "entity": "cv-14"
-     }
-     ```
