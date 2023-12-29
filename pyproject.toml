@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "level1-imageclassification-cv-14"
+version = "0.1.0"
+description = "boostcamp Image Classification Competition"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pip = "^23.3.2"
+black = "^23.12.1"
+matplotlib = "^3.8.2"
+numpy = "^1.26.2"
+pandas = "^2.1.4"
+pillow = "^10.1.0"
+python-dotenv = "^1.0.0"
+scikit-learn = "^1.3.2"
+tensorboard = "^2.15.1"
+wandb = "^0.16.1"
+timm = "^0.9.12"
+albumentations = "^1.3.1"
+opencv-python = "^4.8.1.78"
+torchmetrics = "^1.2.1"
+tqdm = "^4.66.1"
+torch = "^2.1.2"
+torchvision = "^0.16.2"
+torchaudio = "^2.1.2"
+streamlit = "^1.29.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
