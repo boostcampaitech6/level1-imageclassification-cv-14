@@ -1,7 +1,6 @@
 import timm
 import torch.nn as nn
 from torchvision import models
-from transformers import ViTForImageClassification
 from base import BaseModel
 
 class MultiTaskEfficientB0(BaseModel):
@@ -20,8 +19,8 @@ class MultiTaskEfficientB0(BaseModel):
 class ViT(BaseModel):
     def __init__(self, num_classes=8):
         super().__init__()
-        self.pretrained_model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
-        self.pretrained_model.classifier = nn.Linear(self.pretrained_model.classifier.in_features, num_classes)
+        self.pretrained_model = timm.create_model('vit_base_patch16_224',pretrained=True)
+        self.pretrained_model.head = nn.Linear(self.pretrained_model.head.in_features, num_classes)
 
     def forward(self, x):
         return self.pretrained_model(x)
