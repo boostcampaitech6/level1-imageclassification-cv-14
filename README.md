@@ -27,7 +27,7 @@ COVID-19 확산으로 인해 마스크의 중요성이 대두되었다. 모든 �
 
 |김실희|김정택|김채아|선경은|
 |:--:|:--:|:--:|:--:|
-|<a href='https://github.com/siL-rob'><img src='실희' width='200px'/></a>|<a href='https://github.com/Jungtaxi'><img src='https://avatars.githubusercontent.com/u/18082001?v=4' width='200px'/></a>|<a href='https://github.com/2018007956'><img src='https://avatars.githubusercontent.com/u/48304130?v=4' width='200px'/></a>|<a href='https://github.com/rudeuns'><img src='경은' width='200px'/></a>|
+|<a href='https://github.com/siL-rob'><img src='https://avatars.githubusercontent.com/u/58744783?v=4' width='200px'/></a>|<a href='https://github.com/Jungtaxi'><img src='https://avatars.githubusercontent.com/u/18082001?v=4' width='200px'/></a>|<a href='https://github.com/2018007956'><img src='https://avatars.githubusercontent.com/u/48304130?v=4' width='200px'/></a>|<a href='https://github.com/rudeuns'><img src='https://avatars.githubusercontent.com/u/151593264?v=4' width='200px'/></a>|
 
 
 <br></br>
