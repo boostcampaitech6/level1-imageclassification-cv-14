@@ -1,0 +1,23 @@
+{
+    "image_path": "./data/eval/images",
+    "info_path": "./data/eval/info.csv",
+    "output_path": "./data/submission.csv",
+    "resize": 224,
+    "single_model": {
+        "saved_dir": "./saved/models/Image_Classification",
+        "saved_exp_name": "EXP_NAME",
+        "saved_exp_num": 0,
+        "saved_model": "model_best.pth",
+        "is_multi_task": true
+    },
+    "multi_model": {
+        "saved_dir": "./saved/models/Ensemble/1",
+        "saved_models": [
+            "mask_model_best.pth",
+            "gender_model_best.pth",
+            "age_model_best.pth"
+        ],
+        "is_multi_task": true,
+        "is_deep_model": true
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "name": "Image_Classification",
+    "n_gpu": 1,
+
+    "arch": {
+        "type": "ViT",
+        "args": {}
+    },
+    "train_set": {
+        "type": "TrainDataset",
+        "args": {
+            "data_dir": "./data/train/images",
+            "do_calc": false,
+            "use_all_data": false
+        },
+        "use_kfold": true,
+        "k_splits": 5
+    },
+    "valid_set": {
+        "type": "ValidDataset",
+        "args": {
+            "data_dir": "./data/split_valid/images"
+        }
+    },
+    "train_loader": {
+        "type": "BasicDataLoader",
+        "args":{
+            "batch_size": 128,
+            "shuffle": false,
+            "num_workers": 4
+        }
+    },
+    "valid_loader": {
+        "type": "BasicDataLoader",
+        "args":{
+            "batch_size": 128,
+            "shuffle": false,
+            "num_workers": 4
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 1e-2,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "f1_loss",
+    "metrics": [
+        "accuracy", "top_k_acc", "f1_score"
+    ],
+    "lr_scheduler": {
+        "type": "ReduceLROnPlateau",
+        "args": {
+            "mode": "min",
+            "patience": 5,
+            "min_lr": 1e-4
+        }
+    },
+    "trainer": {
+        "type": "MultiTaskTrainer",
+        "args": {},
+
+        "epochs": 50,
+
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        
+        "monitor": "min val_loss",
+        "early_stop": 10
+    },
+    "wandb": {
+        "exp_name": "EXP_NAME",
+        "exp_num": 0,
+        "project_name": "Image_Classification",
+        "entity": "cv-14"
+    }
+}
